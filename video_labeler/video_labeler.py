@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
 from PIL import ImageTk, Image
+import cv2
 
 class Console():
     def __init__(self) -> None:
@@ -31,11 +33,16 @@ class Console():
 
         self.radio_nonlabel = ttk.Radiobutton(
             self.mainframe,
-            text='Not-labelable',
+            text='',
             variable=self.radio_var,
             value=0,
         )
         self.radio_nonlabel.grid(column=2,row=0)
+        self.label_nonlabel = ttk.Label(
+            self.mainframe,
+            text='Not-labelable'
+        )
+        self.label_nonlabel.grid(column=3,row=0)
         
         self.radio_label = ttk.Radiobutton(
             self.mainframe,
@@ -50,4 +57,27 @@ class Console():
             self.mainframe,
             textvariable=self.entry_var,
         )
-        
+        self.entry_label.grid(column=3,row=1)
+
+        self.label_info = ttk.Label(
+            self.mainframe,
+            text='Save: Enter\nNext: F\nPrev: D'
+        )
+        self.label_info.grid(column=3, row=2)
+    
+    def run(self):
+        self.vid_name = filedialog.askopenfilename()
+        print(self.vid_name)
+        cap = cv2.VideoCapture(self.vid_name)
+        self.frames = []
+        while (cap.isOpened()):
+            ret,frame = cap.read()
+            if ret:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                
+
+        self.root.mainloop()
+
+
+if __name__ == '__main__':
+    Console().run()
