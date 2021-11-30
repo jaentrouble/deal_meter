@@ -25,9 +25,10 @@ class Console():
         self.button_cut = ttk.Button(
             self.mainframe,
             text='Cut',
-            # command=
+            command=self.button_cut_command
         )
         self.button_cut.grid(column=0, row=3)
+        self.cut_mode = CUT_IDLE
         
         self.button_reset = ttk.Button(
             self.mainframe,
@@ -100,16 +101,40 @@ class Console():
         self.frame_idx = 0
 
     def button_cut_command(self):
-        
+        self.cut_mode = CUT_WAITING1
+        self.cut_point_1 = None
+        self.cut_point_2 = None
+        self.update()
 
-    def image_click_event_handler(self,event):
+    def image_click_event_handler(self,event:tk.Event):
         # TODO : Just for checking
-        self.entry_var.set(str(event.x)+'/'+str(event.y))
-        
+        # self.entry_var.set(str(event.x)+'/'+str(event.y))
+        if self.cut_mode == CUT_WAITING1:
+            self.cut_point_1 = (event.y,event.x)
+            self.cut_mode = CUT_WAITING2
+            self.update()
+        elif self.cut_mode == CUT_WAITING2:
+            new_point1 = (min(self.cut_point_1[0],event.y),
+                          min(self.cut_point_1[1],event.x))
+            new_point2 = (max(self.cut_point_1[0],event.y),
+                          max(self.cut_point_1[1],event.x))
+            self.cut_point_1 = new_point1
+            self.cut_point_2 = new_point2
+            self.cut_mode = CUT_IDLE
+            self.update()
+
     def update(self):
-        self.current_image =  ImageTk.PhotoImage(Image.fromarray(
-            self.frames[self.frame_idx]
-        ))
+        cur_raw_frame = self.frames[self.frame_idx].copy()
+        if self.cut_point_2 is None:
+            self.current_image = ImageTk.PhotoImage(Image.fromarray(
+                cur_raw_frame
+            ))
+        else:
+            self.current_image = ImageTk.PhotoImage(Image.fromarray(
+                cur_raw_frame[self.cut_point_1[0]:self.cut_point_2[0],
+                              self.cut_point_1[1]:self.cut_point_2[1]]
+            ))
+        
         self.label_image.configure(image=self.current_image)
 
     def run(self):
