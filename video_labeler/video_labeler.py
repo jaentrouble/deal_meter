@@ -64,8 +64,15 @@ class Console():
             text='Save: Enter\nNext: F\nPrev: D'
         )
         self.label_info.grid(column=3, row=2)
+
+        self.button_open = ttk.Button(
+            self.mainframe,
+            text='Open',
+            # command=
+        )
+        self.button_open.grid(column=4,row=1)
     
-    def run(self):
+    def load_vid(self):
         self.vid_name = filedialog.askopenfilename()
         print(self.vid_name)
         cap = cv2.VideoCapture(self.vid_name)
@@ -74,7 +81,11 @@ class Console():
             ret,frame = cap.read()
             if ret:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                
+                self.frames.append(frame)
+            else:
+                break
+
+    def run(self):
 
         self.root.mainloop()
 
