@@ -3,6 +3,11 @@ from tkinter import ttk
 from tkinter import filedialog
 from PIL import ImageTk, Image
 import cv2
+import numpy as np
+
+CUT_IDLE = 0
+CUT_WAITING1 = 1
+CUT_WAITING2 = 2
 
 class Console():
     def __init__(self) -> None:
@@ -13,6 +18,8 @@ class Console():
 
         self.label_image = ttk.Label(self.mainframe)
         self.label_image.grid(column=0,row=0,columnspan=2,rowspan=3)
+        self.label_image.bind('<Button-1>', self.image_click_event_handler)
+
 
         # TODO : Fill commands
         self.button_cut = ttk.Button(
@@ -68,13 +75,15 @@ class Console():
         self.button_open = ttk.Button(
             self.mainframe,
             text='Open',
-            # command=
+            command=self.load_vid
         )
-        self.button_open.grid(column=4,row=1)
+        self.button_open.grid(column=4,row=3)
     
     def load_vid(self):
         self.vid_name = filedialog.askopenfilename()
         print(self.vid_name)
+        if self.vid_name=='':
+            return
         cap = cv2.VideoCapture(self.vid_name)
         self.frames = []
         while (cap.isOpened()):
@@ -84,10 +93,30 @@ class Console():
                 self.frames.append(frame)
             else:
                 break
+        cap.release()
+
+        self.cut_point_1 = None
+        self.cut_point_2 = None
+        self.frame_idx = 0
+
+    def button_cut_command(self):
+        
+
+    def image_click_event_handler(self,event):
+        # TODO : Just for checking
+        self.entry_var.set(str(event.x)+'/'+str(event.y))
+        
+    def update(self):
+        self.current_image =  ImageTk.PhotoImage(Image.fromarray(
+            self.frames[self.frame_idx]
+        ))
+        self.label_image.configure(image=self.current_image)
 
     def run(self):
-
+        self.load_vid()
+        self.update()
         self.root.mainloop()
+        
 
 
 if __name__ == '__main__':
