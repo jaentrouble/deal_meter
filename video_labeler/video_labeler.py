@@ -125,7 +125,7 @@ class Console():
         self.button_save = ttk.Button(
             self.mainframe,
             text='save',
-            
+            command=self.button_save_command,
         )
         self.button_save.grid(column=4,row=4)
 
@@ -187,7 +187,7 @@ class Console():
                 new_name = NO_LABEL + '_' + str(non_label_count)
             else:
                 new_name = str(label)
-            new_path = (save_dir/new_name).with_suffix('.png')
+            new_path = str((save_dir/new_name).with_suffix('.png'))
             cv2.imwrite(new_path, cut_frame)
 
     def image_click_event_handler(self,event:tk.Event):
