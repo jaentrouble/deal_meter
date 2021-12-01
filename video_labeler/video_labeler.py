@@ -185,6 +185,7 @@ class Console():
             cut_frame = cv2.cvtColor(cut_frame,cv2.COLOR_RGB2BGR)
             if label == NO_LABEL:
                 new_name = NO_LABEL + '_' + str(non_label_count)
+                non_label_count+=1
             else:
                 new_name = str(label)
             new_path = str((save_dir/new_name).with_suffix('.png'))
