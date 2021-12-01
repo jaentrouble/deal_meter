@@ -172,6 +172,8 @@ class Console():
 
     def button_save_command(self):
         save_dir = Path(filedialog.askdirectory())
+        if save_dir == '':
+            return
         non_label_count = 0
         for frame, label in zip(self.frames,self.labels):
             if label == SKIP_LABEL:
@@ -215,11 +217,14 @@ class Console():
         if self.radio_var.get()==RADIO_NON:
             new_label = NO_LABEL
         elif self.radio_var.get()==RADIO_LABEL:
-            try:
-                new_label = int(self.entry_var.get())
-            except ValueError:
-                messagebox.showwarning(message='Not an integer!')
-                return
+            if self.entry_var.get()=='':
+                new_label = SKIP_LABEL
+            else:
+                try:
+                    new_label = int(self.entry_var.get())
+                except ValueError:
+                    messagebox.showwarning(message='Not an integer!')
+                    return
         elif self.radio_var.get()==RADIO_SKIP:
             new_label = SKIP_LABEL
 
@@ -229,7 +234,7 @@ class Console():
             self.labels.append(new_label)
         else:
             self.labels[self.frame_idx] = new_label
-        self.frame_idx += 1
+        self.frame_idx =  min(self.frame_idx+1,len(self.frames)-1)
         if self.frame_idx < len(self.labels):
             if self.labels[self.frame_idx]==NO_LABEL:
                 self.radio_var.set(RADIO_NON)
@@ -249,11 +254,14 @@ class Console():
         if self.radio_var.get()==RADIO_NON:
             new_label = NO_LABEL
         elif self.radio_var.get()==RADIO_LABEL:
-            try:
-                new_label = int(self.entry_var.get())
-            except ValueError:
-                messagebox.showwarning(message='Not an integer!')
-                return
+            if self.entry_var.get()=='':
+                new_label = SKIP_LABEL
+            else:
+                try:
+                    new_label = int(self.entry_var.get())
+                except ValueError:
+                    messagebox.showwarning(message='Not an integer!')
+                    return
         elif self.radio_var.get()==RADIO_SKIP:
             new_label = SKIP_LABEL
 
