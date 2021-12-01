@@ -11,8 +11,10 @@ CUT_WAITING2 = 2
 
 RADIO_NON = 0
 RADIO_LABEL = 1
+RADIO_SKIP = 2
 
 NO_LABEL = 'NL'
+SKIP_LABEL = 'skip'
 
 class Console():
     def __init__(self) -> None:
@@ -78,11 +80,27 @@ class Console():
         )
         self.entry_label.grid(column=3,row=1)
 
+        self.radio_skip = ttk.Radiobutton(
+            self.mainframe,
+            variable=self.radio_var,
+            value=2,
+            command=self.radio_button_command,
+        )
+        self.radio_skip.grid(column=2,row=2)
+
+        self.label_skip = ttk.Label(
+            self.mainframe,
+            text='Skip'
+        )
+        self.label_skip.grid(column=3,row=2)
+        
+
+
         self.label_info = ttk.Label(
             self.mainframe,
             text='Next: F or Enter\nPrev: D'
         )
-        self.label_info.grid(column=3, row=2)
+        self.label_info.grid(column=3, row=3)
 
         self.button_useless = ttk.Button(
             self.mainframe,
@@ -103,6 +121,13 @@ class Console():
             command=self.load_vid
         )
         self.button_open.grid(column=4,row=3)
+
+        self.button_save = ttk.Button(
+            self.mainframe,
+            text='save',
+            
+        )
+        self.button_save.grid(column=4,row=4)
 
     
     def load_vid(self):
@@ -128,7 +153,7 @@ class Console():
         self.update()
 
     def radio_button_command(self):
-        if self.radio_var.get() == RADIO_NON:
+        if self.radio_var.get() != RADIO_LABEL:
             self.entry_label.state(['disabled'])
         elif self.radio_var.get() == RADIO_LABEL:
             self.entry_label.state(['!disabled'])
@@ -145,16 +170,38 @@ class Console():
         self.cut_point_2 = None
         self.update()
 
+    def button_save_command(self):
+        save_dir = Path(filedialog.askdirectory())
+        non_label_count = 0
+        for frame, label in zip(self.frames,self.labels):
+            if label == SKIP_LABEL:
+                continue
+            if self.cut_point_2 is None:
+                cut_frame = frame
+            else:
+                cut_frame = frame[self.cut_point_1[0]:self.cut_point_2[0],
+                                  self.cut_point_1[1]:self.cut_point_2[1]]
+
+            cut_frame = cv2.cvtColor(cut_frame,cv2.COLOR_RGB2BGR)
+            if label == NO_LABEL:
+                new_name = NO_LABEL + '_' + str(non_label_count)
+            else:
+                new_name = str(label)
+            new_path = (save_dir/new_name).with_suffix('.png')
+            cv2.imwrite(new_path, cut_frame)
+
     def image_click_event_handler(self,event:tk.Event):
+        x_f = int(max(event.x-5,0)/self.ratio)
+        y_f = int(max(event.y-5,0)/self.ratio)
         if self.cut_mode == CUT_WAITING1:
-            self.cut_point_1 = (event.y,event.x)
+            self.cut_point_1 = (y_f,x_f)
             self.cut_mode = CUT_WAITING2
             self.update()
         elif self.cut_mode == CUT_WAITING2:
-            new_point1 = (min(self.cut_point_1[0],event.y),
-                          min(self.cut_point_1[1],event.x))
-            new_point2 = (max(self.cut_point_1[0],event.y),
-                          max(self.cut_point_1[1],event.x))
+            new_point1 = (min(self.cut_point_1[0],y_f),
+                          min(self.cut_point_1[1],x_f))
+            new_point2 = (max(self.cut_point_1[0],y_f),
+                          max(self.cut_point_1[1],x_f))
             self.cut_point_1 = new_point1
             self.cut_point_2 = new_point2
             self.cut_mode = CUT_IDLE
@@ -172,6 +219,8 @@ class Console():
             except ValueError:
                 messagebox.showwarning(message='Not an integer!')
                 return
+        elif self.radio_var.get()==RADIO_SKIP:
+            new_label = SKIP_LABEL
 
         assert self.frame_idx <= len(self.labels)
         
@@ -183,6 +232,8 @@ class Console():
         if self.frame_idx < len(self.labels):
             if self.labels[self.frame_idx]==NO_LABEL:
                 self.radio_var.set(RADIO_NON)
+            elif self.labels[self.frame_idx]==SKIP_LABEL:
+                self.radio_var.set(RADIO_SKIP)
             else:
                 self.radio_var.set(RADIO_LABEL)
             self.entry_var.set(str(self.labels[self.frame_idx]))
@@ -202,6 +253,8 @@ class Console():
             except ValueError:
                 messagebox.showwarning(message='Not an integer!')
                 return
+        elif self.radio_var.get()==RADIO_SKIP:
+            new_label = SKIP_LABEL
 
         assert self.frame_idx <= len(self.labels)
         
@@ -213,6 +266,8 @@ class Console():
         if self.frame_idx < len(self.labels):
             if self.labels[self.frame_idx]==NO_LABEL:
                 self.radio_var.set(RADIO_NON)
+            elif self.labels[self.frame_idx]==SKIP_LABEL:
+                self.radio_var.set(RADIO_SKIP)
             else:
                 self.radio_var.set(RADIO_LABEL)
             self.entry_var.set(str(self.labels[self.frame_idx]))
@@ -221,15 +276,18 @@ class Console():
     def update(self):
         cur_raw_frame = self.frames[self.frame_idx].copy()
         if self.cut_point_2 is None:
-            self.current_image = ImageTk.PhotoImage(Image.fromarray(
-                cur_raw_frame
-            ))
+            cut_frame = cur_raw_frame
         else:
-            self.current_image = ImageTk.PhotoImage(Image.fromarray(
-                cur_raw_frame[self.cut_point_1[0]:self.cut_point_2[0],
-                              self.cut_point_1[1]:self.cut_point_2[1]]
-            ))
-        
+            cut_frame = cur_raw_frame[self.cut_point_1[0]:self.cut_point_2[0],
+                                      self.cut_point_1[1]:self.cut_point_2[1]]
+        if cut_frame.shape[1]>1200:
+            self.ratio = 1200/cut_frame.shape[1]
+            cut_frame=cv2.resize(cut_frame, (0,0),fx=self.ratio, fy=self.ratio)
+        else:
+            self.ratio = 1
+        self.current_image = ImageTk.PhotoImage(Image.fromarray(
+            cut_frame
+        ))
         self.label_image.configure(image=self.current_image)
         self.index_var.set(str(self.frame_idx)+'/'+str(len(self.labels)))
         self.radio_button_command()
