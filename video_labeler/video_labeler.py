@@ -192,6 +192,7 @@ class Console():
                 new_name = str(label)
             new_path = str((save_dir/new_name).with_suffix('.png'))
             cv2.imwrite(new_path, cut_frame)
+        messagebox.showinfo(title='Save',message='Saved')
 
     def image_click_event_handler(self,event:tk.Event):
         x_f = int(max(event.x-5,0)/self.ratio)
