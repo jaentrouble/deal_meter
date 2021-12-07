@@ -8,4 +8,6 @@
 
 - Input size: (128, 704, 3)
 
-- Output size: (N, 11) -> 11: Stop sign
+- Output size: (N, 10)
+
+- N=11 digit? (Ab hard 28,000,000,000)
