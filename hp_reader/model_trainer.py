@@ -1,10 +1,12 @@
 import tensorflow as tf
 import tensorflow.keras as keras
-from tensorflow.keras import layers, losses, metrics
+from tensorflow.keras import layers, losses, metrics, mixed_precision
 from .deal_models import *
 from .lr_schedules import *
 from pathlib import Path
 import os
+import tensorflow_addons as tfa
+
 
 SHUFFLE_BUFFER = 1000
 
@@ -85,11 +87,56 @@ def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int):
 
 
 def run_training(
+    name,
     model_function,
     optimizer,
-    train_dir_lists,
-    val_dir_lists,
+    epochs,
+    batch_size,
+    train_dir_list,
+    val_dir_list,
     img_size,
     max_digits,
+    load_model_path=None,
+    profile = False,
 ):
+    """
+    img_size: (width, height)
+    """
+    mixed_precision.set_global_policy('mixed_float16')
     
+    #TODO: fill deal_model arguments
+    input_shape = (img_size[1],img_size[0],3)
+    mymodel = deal_model(
+        model_function=model_function,
+        optimizer=optimizer,
+        input_shape=input_shape,
+        max_digits=max_digits,
+    ) # Will get a compiled model
+
+    if load_model_path:
+        mymodel.load_weights(load_model_path)
+        print('loaded from: '+load_model_path)
+
+    mymodel.summary()
+    log_dir = 'logs/fit/' + name
+    if profile:
+        tb_callback = keras.callbacks.TensorBoard(
+            log_dir=log_dir,
+            histogram_freq=1,
+            write_images=True,
+            profile_batch=(3,5),
+        )
+    else:
+        tb_callback = keras.callbacks.TensorBoard(
+            log_dir=log_dir,
+            histogram_freq=1,
+            write_images=True,
+        )
+
+    savedir = 'savedmodels/' + name + '/{epoch}'
+    save_callback = keras.callbacks.ModelCheckpoint(
+        savedir,
+        save_weights_only=True,
+        verbose=1
+    )
+    tqdm_callback = tfa.callbacks.TQDMProgressBar()
