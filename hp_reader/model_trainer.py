@@ -103,7 +103,7 @@ class ValFigCallback(keras.callbacks.Callback):
         plt.close(figure)
         buf.seek(0)
         # Convert PNG buffer to TF image
-        image = tf.image.decode_jpeg(buf.getvalue(), channels=4)
+        image = tf.image.decode_jpeg(buf.getvalue(), channels=3)
         # Add the batch dimension
         image = tf.expand_dims(image, 0)
         return image
