@@ -164,14 +164,12 @@ def run_training(
         tb_callback = keras.callbacks.TensorBoard(
             log_dir=log_dir,
             histogram_freq=1,
-            # write_images=True,
             profile_batch=(3,5),
         )
     else:
         tb_callback = keras.callbacks.TensorBoard(
             log_dir=log_dir,
             histogram_freq=1,
-            # write_images=True,
         )
 
     savedir = 'savedmodels/' + name + '/{epoch}'
