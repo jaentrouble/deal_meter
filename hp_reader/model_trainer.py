@@ -5,7 +5,8 @@ from pathlib import Path
 import os
 import tensorflow_addons as tfa
 
-
+tf.config.run_functions_eagerly(True)
+tf.data.experimental.enable_debug_mode()
 SHUFFLE_BUFFER = 1000
 
 def deal_model(
@@ -64,17 +65,18 @@ def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int):
 
     def process_path(image_path):
         image_raw = tf.io.read_file(image_path)
-        image = tf.io.decode_image(image_raw,channels=3)
+        image = tf.io.decode_png(image_raw,channels=3)
+        image = tf.image.convert_image_dtype(image,tf.float32)
         image = tf.image.resize(image, image_size)
         raw_label = tf.strings.split(
             tf.strings.split(image_path,os.sep)[-1],'.'
         )[0]
-        i = tf.strings.to_number(raw_label,out_type=tf.int32)
+        i = tf.strings.to_number(raw_label,out_type=tf.int64)
         tf.debugging.assert_less(i,10**max_digit,
             message='Label is larger than max digit')
-        d = tf.range(max_digit,0,-1)
+        d = tf.range(max_digit,0,-1,dtype=tf.int64)
         label = (i-(i//(10**d))*10**d)//(10**(d-1))
-        
+
         return image, label
 
     dataset = dataset.map(process_path)

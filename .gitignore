@@ -130,3 +130,7 @@ dmypy.json
 
 videos/
 .DS_Store
+
+hp_reader/logs
+hp_reader/savedmodels
+hp_reader/videos
