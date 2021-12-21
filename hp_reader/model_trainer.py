@@ -111,15 +111,15 @@ class ValFigCallback(keras.callbacks.Callback):
         return image
 
     def val_result_fig(self):
-        samples = self.val_ds.take(4).as_numpy_iterator()
+        samples = self.val_ds.take(1).as_numpy_iterator()
+        sample = next(samples)
         fig = plt.figure(figsize=(15,15))
         for i in range(4):
-            sample = next(samples)
             sample_x = sample[0]
             logits = self.model(sample_x, training=False)
             predict = np.argmax(logits,axis=-1)
-            ax = fig.add_subplot(4,1,i+1,title=str(predict[0]))
-            ax.imshow(sample_x[0])
+            ax = fig.add_subplot(4,1,i+1,title=str(predict[i]))
+            ax.imshow(sample_x[i])
 
         return fig
 
