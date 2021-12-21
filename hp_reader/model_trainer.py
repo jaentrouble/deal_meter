@@ -118,7 +118,7 @@ class ValFigCallback(keras.callbacks.Callback):
             sample_x = sample[0]
             logits = self.model(sample_x, training=False)
             predict = np.argmax(logits,axis=-1)
-            ax = fig.add_subplot(4,1,i+1,title=str(logits[i]))
+            ax = fig.add_subplot(4,1,i+1,title=str(predict[i]))
             ax.imshow(sample_x[i])
 
         return fig
