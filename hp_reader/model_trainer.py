@@ -2,7 +2,7 @@ import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras import layers, losses, metrics, mixed_precision
 from .deal_models import *
-from .lr_schedules import *
+from .deal_optimizers import *
 from pathlib import Path
 import os
 import tensorflow_addons as tfa
@@ -100,12 +100,11 @@ def run_training(
     profile = False,
 ):
     """
-    img_size: (width, height)
+    img_size: (height, width)
     """
     mixed_precision.set_global_policy('mixed_float16')
     
-    #TODO: fill deal_model arguments
-    input_shape = (img_size[1],img_size[0],3)
+    input_shape = (img_size[0],img_size[1],3)
     mymodel = deal_model(
         model_function=model_function,
         optimizer=optimizer,
@@ -140,3 +139,70 @@ def run_training(
         verbose=1
     )
     tqdm_callback = tfa.callbacks.TQDMProgressBar()
+    
+    train_ds = image_dataset(
+        train_dir_list,
+        max_digits,
+        img_size,
+        batch_size,
+    )
+    val_ds = image_dataset(
+        val_dir_list,
+        max_digits,
+        img_size,
+        batch_size,
+    )
+
+    mymodel.fit(
+        x=train_ds,
+        epochs=epochs,
+        callbacks=[
+            tb_callback,
+            save_callback,
+            tqdm_callback,
+        ],
+        verbose=0,
+        validation_data=val_ds,
+    )
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-n','--name',dest='name')
+    parser.add_argument('-e','-epochs', dest='epochs')
+    parser.add_argument('--load',dest='load',default=False)
+    parser.add_argument('-pf','--profile', dest='profile',
+                        action='store_true',default=False)
+    args = parser.parse_args()
+
+
+    train_dirs = [
+        'videos/2',
+        'videos/3',
+        'videos/4',
+        'videos/5',
+        'videos/6',
+        'videos/7',
+        'videos/8',
+        'videos/9',
+        'videos/10',
+    ]
+    val_dirs = [
+        'videos/1'
+    ]
+
+    kwargs = {}
+
+    kwargs['name'] = args.name
+    kwargs['model_function'] = mobv3_lstm
+    kwargs['optimizer'] = exp_3_5
+    kwargs['epochs'] = int(args.epochs)
+    kwargs['batch_size'] = 128
+    kwargs['train_dir_list'] = train_dirs
+    kwargs['val_dir_list'] = val_dirs
+    kwargs['img_size'] = (128,704)
+    kwargs['max_digits'] = 11
+    kwargs['load_model_path'] = args.load
+    kwargs['profile'] = args.profile
+    
+    run_training(**kwargs)
