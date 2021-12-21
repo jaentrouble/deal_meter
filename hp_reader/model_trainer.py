@@ -4,6 +4,9 @@ from tensorflow.keras import layers, losses, metrics, mixed_precision
 from pathlib import Path
 import os
 import tensorflow_addons as tfa
+import matplotlib.pyplot as plt
+import io
+import numpy as np
 
 tf.config.run_functions_eagerly(True)
 tf.data.experimental.enable_debug_mode()
@@ -85,6 +88,47 @@ def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int):
 
     return dataset
 
+class ValFigCallback(keras.callbacks.Callback):
+    def __init__(self, val_ds, logdir):
+        super().__init__()
+        self.val_ds = val_ds
+        self.filewriter = tf.summary.create_file_writer(logdir+'/val_image')
+
+    def plot_to_image(self, figure):
+        """Converts the matplotlib plot specified by 'figure' to a PNG image and
+        returns it. The supplied figure is closed and inaccessible after this call."""
+        # Save the plot to a PNG in memory.
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        # Closing the figure prevents it from being displayed directly inside
+        # the notebook.
+        plt.close(figure)
+        buf.seek(0)
+        # Convert PNG buffer to TF image
+        image = tf.image.decode_png(buf.getvalue(), channels=4)
+        # Add the batch dimension
+        image = tf.expand_dims(image, 0)
+        return image
+
+    def val_result_fig(self):
+        samples = self.val_ds.take(4).as_numpy_iterator()
+        fig = plt.figure(figsize=(15,15))
+        for i in range(4):
+            sample = next(samples)
+            sample_x = sample[0]
+            logits = self.model(sample_x, training=False)
+            predict = np.argmax(logits,axis=-1)
+            ax = fig.add_subplot(4,1,i+1,title=str(predict[0]))
+            ax.imshow(sample_x[0])
+
+        return fig
+
+    def on_epoch_end(self, epoch, logs=None):
+        image = self.plot_to_image(self.val_result_fig())
+        with self.filewriter.as_default():
+            tf.summary.image('val prediction', image, step=epoch)
+
+
 
 def run_training(
     name,
@@ -153,6 +197,8 @@ def run_training(
         batch_size,
     )
 
+    image_callback = ValFigCallback(val_ds, log_dir)
+
     mymodel.fit(
         x=train_ds,
         epochs=epochs,
@@ -160,6 +206,7 @@ def run_training(
             tb_callback,
             save_callback,
             tqdm_callback,
+            image_callback,
         ],
         verbose=0,
         validation_data=val_ds,
