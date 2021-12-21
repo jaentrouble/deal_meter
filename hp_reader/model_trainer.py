@@ -1,8 +1,6 @@
 import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras import layers, losses, metrics, mixed_precision
-from .deal_models import *
-from .deal_optimizers import *
 from pathlib import Path
 import os
 import tensorflow_addons as tfa
@@ -167,6 +165,9 @@ def run_training(
 
 if __name__ == '__main__':
     import argparse
+    from deal_models import *
+    from deal_optimizers import *
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-n','--name',dest='name')
     parser.add_argument('-e','-epochs', dest='epochs')
