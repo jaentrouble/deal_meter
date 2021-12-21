@@ -241,7 +241,7 @@ if __name__ == '__main__':
 
     kwargs['name'] = args.name
     kwargs['model_function'] = mobv3_lstm
-    kwargs['optimizer'] = exp_3_5
+    kwargs['optimizer'] = exp_4_6
     kwargs['epochs'] = int(args.epochs)
     kwargs['batch_size'] = 128
     kwargs['train_dir_list'] = train_dirs
