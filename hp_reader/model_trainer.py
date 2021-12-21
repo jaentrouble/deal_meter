@@ -195,7 +195,7 @@ def run_training(
         batch_size,
     )
 
-    image_callback = ValFigCallback(val_ds, log_dir)
+    # image_callback = ValFigCallback(val_ds, log_dir)
 
     mymodel.fit(
         x=train_ds,
