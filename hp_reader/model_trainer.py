@@ -204,7 +204,7 @@ def run_training(
             tb_callback,
             save_callback,
             tqdm_callback,
-            image_callback,
+            # image_callback,
         ],
         verbose=0,
         validation_data=val_ds,
