@@ -164,14 +164,14 @@ def run_training(
         tb_callback = keras.callbacks.TensorBoard(
             log_dir=log_dir,
             histogram_freq=1,
-            write_images=True,
+            # write_images=True,
             profile_batch=(3,5),
         )
     else:
         tb_callback = keras.callbacks.TensorBoard(
             log_dir=log_dir,
             histogram_freq=1,
-            write_images=True,
+            # write_images=True,
         )
 
     savedir = 'savedmodels/' + name + '/{epoch}'
@@ -195,7 +195,7 @@ def run_training(
         batch_size,
     )
 
-    # image_callback = ValFigCallback(val_ds, log_dir)
+    image_callback = ValFigCallback(val_ds, log_dir)
 
     mymodel.fit(
         x=train_ds,
@@ -204,7 +204,7 @@ def run_training(
             tb_callback,
             save_callback,
             tqdm_callback,
-            # image_callback,
+            image_callback,
         ],
         verbose=0,
         validation_data=val_ds,
