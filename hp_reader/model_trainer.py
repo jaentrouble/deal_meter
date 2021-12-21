@@ -58,7 +58,7 @@ def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int):
         (Height, Width)
     """
     image_lists = [
-        str(Path(d)/'*.png' for d in dir_lists)
+        str(Path(d)/'*.png') for d in dir_lists
     ]
     dataset = tf.data.Dataset.list_files(image_lists)
 
