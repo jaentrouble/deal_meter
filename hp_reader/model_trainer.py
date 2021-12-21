@@ -8,8 +8,6 @@ import matplotlib.pyplot as plt
 import io
 import numpy as np
 
-tf.config.run_functions_eagerly(True)
-tf.data.experimental.enable_debug_mode()
 SHUFFLE_BUFFER = 1000
 
 def deal_model(
