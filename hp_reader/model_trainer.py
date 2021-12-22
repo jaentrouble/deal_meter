@@ -228,8 +228,8 @@ if __name__ == '__main__':
 
 
     train_dirs = [
+        'videos/1',
         'videos/2',
-        'videos/3',
         'videos/4',
         'videos/5',
         'videos/6',
@@ -239,7 +239,7 @@ if __name__ == '__main__':
         'videos/10',
     ]
     val_dirs = [
-        'videos/1'
+        'videos/3'
     ]
 
     kwargs = {}
