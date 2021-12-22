@@ -175,8 +175,11 @@ def run_training(
     savedir = 'savedmodels/' + name + '/{epoch}'
     save_callback = keras.callbacks.ModelCheckpoint(
         savedir,
+        monitor='val_sparse_categorical_accuracy',
         save_weights_only=True,
-        verbose=1
+        verbose=1,
+        save_best_only=True,
+        mode='max',
     )
     tqdm_callback = tfa.callbacks.TQDMProgressBar()
     
