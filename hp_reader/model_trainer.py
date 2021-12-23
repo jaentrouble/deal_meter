@@ -116,7 +116,7 @@ class ValFigCallback(keras.callbacks.Callback):
         sample = next(samples)
         fig = plt.figure(figsize=(15,15))
         sample_x = sample[0]
-        logits = self.model(sample_x, training=False)
+        logits = self.model(sample_x, training=True)
         predict = np.argmax(logits,axis=-1)
         self.next_text = str(logits[:4])
         for i in range(4):
@@ -130,7 +130,7 @@ class ValFigCallback(keras.callbacks.Callback):
         sample = next(samples)
         fig = plt.figure(figsize=(15,15))
         sample_x = sample[0]
-        logits = self.model(sample_x, training=False)
+        logits = self.model(sample_x, training=True)
         predict = np.argmax(logits,axis=-1)
         for i in range(4):
             ax = fig.add_subplot(4,1,i+1,title=str(predict[i]))
