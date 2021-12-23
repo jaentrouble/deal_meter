@@ -114,12 +114,14 @@ class ValFigCallback(keras.callbacks.Callback):
         samples = self.val_ds.take(1).as_numpy_iterator()
         sample = next(samples)
         fig = plt.figure(figsize=(15,15))
+        sample_x = sample[0]
+        logits = self.model(sample_x, training=False)
+        predict = np.argmax(logits,axis=-1)
+        self.next_text = str(logits[:4])
         for i in range(4):
-            sample_x = sample[0]
-            logits = self.model(sample_x, training=False)
-            predict = np.argmax(logits,axis=-1)
             ax = fig.add_subplot(4,1,i+1,title=str(predict[i]))
             ax.imshow(sample_x[i])
+        
 
         return fig
 
@@ -127,6 +129,7 @@ class ValFigCallback(keras.callbacks.Callback):
         image = self.plot_to_image(self.val_result_fig())
         with self.filewriter.as_default():
             tf.summary.image('val prediction', image, step=epoch)
+            tf.summary.text('logits',self.next_text,step=epoch)
 
 
 
