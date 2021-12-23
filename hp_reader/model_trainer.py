@@ -89,9 +89,10 @@ def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int):
     return dataset
 
 class ValFigCallback(keras.callbacks.Callback):
-    def __init__(self, val_ds, logdir):
+    def __init__(self, train_ds, val_ds, logdir):
         super().__init__()
         self.val_ds = val_ds
+        self.train_ds = train_ds
         self.filewriter = tf.summary.create_file_writer(logdir+'/val_image')
 
     def plot_to_image(self, figure):
@@ -122,13 +123,28 @@ class ValFigCallback(keras.callbacks.Callback):
             ax = fig.add_subplot(4,1,i+1,title=str(predict[i]))
             ax.imshow(sample_x[i])
         
-
         return fig
 
+    def train_result_fig(self):
+        samples = self.train_ds.take(1).as_numpy_iterator()
+        sample = next(samples)
+        fig = plt.figure(figsize=(15,15))
+        sample_x = sample[0]
+        logits = self.model(sample_x, training=False)
+        predict = np.argmax(logits,axis=-1)
+        for i in range(4):
+            ax = fig.add_subplot(4,1,i+1,title=str(predict[i]))
+            ax.imshow(sample_x[i])
+        
+        return fig
+
+
     def on_epoch_end(self, epoch, logs=None):
-        image = self.plot_to_image(self.val_result_fig())
+        train_image = self.plot_to_image(self.train_result_fig())
+        val_image = self.plot_to_image(self.val_result_fig())
         with self.filewriter.as_default():
-            tf.summary.image('val prediction', image, step=epoch)
+            tf.summary.image('train prediction', train_image, step=epoch)
+            tf.summary.image('val prediction', val_image, step=epoch)
             tf.summary.text('logits',self.next_text,step=epoch)
 
 
@@ -201,7 +217,7 @@ def run_training(
         batch_size,
     )
 
-    image_callback = ValFigCallback(val_ds, log_dir)
+    image_callback = ValFigCallback(train_ds, val_ds, log_dir)
 
     mymodel.fit(
         x=train_ds,
