@@ -267,7 +267,7 @@ if __name__ == '__main__':
     kwargs['model_function'] = effb7_lstm
     kwargs['optimizer'] = exp_4_6
     kwargs['epochs'] = int(args.epochs)
-    kwargs['batch_size'] = 128
+    kwargs['batch_size'] = 32
     kwargs['train_dir_list'] = train_dirs
     kwargs['val_dir_list'] = val_dirs
     kwargs['img_size'] = (128,704)
