@@ -154,7 +154,7 @@ class ValFigCallback(keras.callbacks.Callback):
         predict = np.argmax(logits,axis=-1)
         for i in range(4):
             ax = fig.add_subplot(4,1,i+1,title=str(predict[i]))
-            ax.imshow(sample_x[i])
+            ax.imshow(sample_x[i]/255)
         
         return fig
 
