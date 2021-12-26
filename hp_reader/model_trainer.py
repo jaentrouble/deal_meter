@@ -81,7 +81,7 @@ def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int):
         image = tf.image.resize(image, image_size)
         # random invert color
         if tf.random.uniform([]) < 0.5:
-            image = 255.0 - image
+            image = 1.0 - image
         # random shuffle rgb
         if tf.random.uniform([]) < 0.5:
             image = tf.gather(
@@ -89,6 +89,7 @@ def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int):
                 tf.random.shuffle([0,1,2]),
                 axis=-1,
             )
+        image = image * 255
 
         raw_label = tf.strings.split(
             tf.strings.split(image_path,os.sep)[-1],'.'
