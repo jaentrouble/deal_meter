@@ -67,10 +67,29 @@ def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int):
     def process_path(image_path):
         image_raw = tf.io.read_file(image_path)
         image = tf.io.decode_png(image_raw,channels=3)
-        crop_size = tf.shape(image) - tf.constant([0, 150, 0],dtype=tf.int32)
+        crop_size = (tf.shape(image) 
+            - tf.cast(
+                tf.random.uniform(shape=(3,),
+                                  dtype=tf.float32,
+                                  minval=[0,0,0],
+                                  maxval=[40,200,0]),
+                dtype=tf.int32
+            )
+        )
         image = tf.image.random_crop(image,crop_size)
         image = tf.image.convert_image_dtype(image,tf.float32)
         image = tf.image.resize(image, image_size)
+        # random invert color
+        if tf.random.uniform([]) < 0.5:
+            image = 255.0 - image
+        # random shuffle rgb
+        if tf.random.uniform([]) < 0.5:
+            image = tf.gather(
+                image,
+                tf.random.shuffle([0,1,2]),
+                axis=-1,
+            )
+
         raw_label = tf.strings.split(
             tf.strings.split(image_path,os.sep)[-1],'.'
         )[0]
