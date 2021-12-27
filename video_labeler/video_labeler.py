@@ -5,8 +5,8 @@ from PIL import ImageTk, Image
 import cv2
 from pathlib import Path
 
-START_FRAME = 0
-END_FRAME = 1000
+START_FRAME = 1200
+END_FRAME = 1500
 
 CUT_IDLE = 0
 CUT_WAITING1 = 1
@@ -40,7 +40,7 @@ class Console():
             text='Cut',
             command=self.button_cut_command
         )
-        self.button_cut.grid(column=0, row=3)
+        self.button_cut.grid(column=0, row=6)
         self.cut_mode = CUT_IDLE
         
         self.button_reset = ttk.Button(
@@ -48,7 +48,7 @@ class Console():
             text='Reset',
             command=self.button_reset_command
         )
-        self.button_reset.grid(column=1, row=3)
+        self.button_reset.grid(column=1, row=6)
 
         self.radio_var = tk.IntVar(value=0)
 
@@ -59,12 +59,12 @@ class Console():
             value=0,
             command=self.radio_button_command,
         )
-        self.radio_nonlabel.grid(column=2,row=0)
+        self.radio_nonlabel.grid(column=0,row=3)
         self.label_nonlabel = ttk.Label(
             self.mainframe,
             text='Not-labelable'
         )
-        self.label_nonlabel.grid(column=3,row=0)
+        self.label_nonlabel.grid(column=1,row=3)
         
         self.radio_label = ttk.Radiobutton(
             self.mainframe,
@@ -73,7 +73,7 @@ class Console():
             value=1,
             command=self.radio_button_command,
         )
-        self.radio_label.grid(column=2,row=1)
+        self.radio_label.grid(column=0,row=4)
 
         self.entry_var = tk.StringVar()
         self.entry_label = ttk.Entry(
@@ -81,7 +81,7 @@ class Console():
             textvariable=self.entry_var,
             state='disabled',
         )
-        self.entry_label.grid(column=3,row=1)
+        self.entry_label.grid(column=1,row=4)
 
         self.radio_skip = ttk.Radiobutton(
             self.mainframe,
@@ -89,13 +89,13 @@ class Console():
             value=2,
             command=self.radio_button_command,
         )
-        self.radio_skip.grid(column=2,row=2)
+        self.radio_skip.grid(column=0,row=5)
 
         self.label_skip = ttk.Label(
             self.mainframe,
             text='Skip'
         )
-        self.label_skip.grid(column=3,row=2)
+        self.label_skip.grid(column=1,row=5)
         
 
 
