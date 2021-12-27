@@ -5,6 +5,9 @@ from PIL import ImageTk, Image
 import cv2
 from pathlib import Path
 
+START_FRAME = 0
+END_FRAME = 1000
+
 CUT_IDLE = 0
 CUT_WAITING1 = 1
 CUT_WAITING2 = 2
@@ -138,13 +141,18 @@ class Console():
         self.labels = []
         cap = cv2.VideoCapture(self.vid_name)
         self.frames = []
+        frame_count = 0
         while (cap.isOpened()):
             ret,frame = cap.read()
             if ret:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                self.frames.append(frame)
+                if START_FRAME<=frame_count and frame_count<END_FRAME:
+                    self.frames.append(frame)
+                elif END_FRAME<=frame_count:
+                    break
             else:
                 break
+            frame_count+=1
         cap.release()
 
         self.cut_point_1 = None
