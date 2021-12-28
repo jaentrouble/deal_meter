@@ -398,7 +398,7 @@ if __name__ == '__main__':
     kwargs['batch_size'] = 32
     kwargs['train_dir'] = train_dir
     kwargs['val_dir_list'] = val_dirs
-    kwargs['img_size'] = (128,704)
+    kwargs['img_size'] = (64,704)
     kwargs['max_digits'] = 11
     kwargs['load_model_path'] = args.load
     kwargs['profile'] = args.profile
