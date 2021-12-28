@@ -108,6 +108,122 @@ def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int):
 
     return dataset
 
+def random_hp_dataset(base_img_dir:str, max_digit:int, image_size, batch_size:int):
+    """image_data
+    Returns a Dataset
+    Requires all image names to be integers
+
+    arguments
+    ---------
+    dir_lists: list of directories that contain base images
+
+    max_digit: maximum digit of label (padded with 0)
+               All labels should be less than max_digit
+        ex) max_digit=3, label=23 -> [0 2 3]
+
+    image_size: Image will be resized to this size
+        (Height, Width)
+    """
+    from PIL import Image, ImageFont, ImageDraw
+    import random
+
+    class HpGenerator():
+        """An iterable generator that makes fake hp bar images
+
+        Max_HP and Current_HP are both random while
+        Current_HP <= Max_HP
+        """
+        def __init__(self,base_img_dir:str, max_digit:int) -> None:
+            self.base_img_list = [
+                Image.open(d) for d in Path(base_img_dir).iterdir()
+                    if d.match('*.png')
+            ] # List of PIL.Image objects, not np.array objects
+            self.fonts = [
+                ImageFont.truetype('NanumBarunGothic.ttf',size=s)
+                    for s in range(28,36)
+            ]
+            assert max_digit > 0
+            self.max_digit = max_digit
+
+        def __iter__(self):
+            return self
+
+        def __call__(self, *args):
+            return self
+
+        def __next__(self):
+            new_img = random.choice(self.base_img_list).copy()
+            # Current_hp is more important - choose current_hp first
+            current_hp = random.randrange(1, 10**max_digit-1)
+            max_hp = random.randrange(current_hp, 10**max_digit)
+            hp_text = f'{current_hp}/{max_hp}'
+            draw = ImageDraw.Draw(new_img)
+            font = random.choice(self.fonts)
+            draw.text(
+                xy=(new_img.width//2+random.randrange(-100,101),
+                    new_img.height//2+random.randrange(0,16)),
+                text=hp_text,
+                fill=(255,255,255),
+                font=font,
+                anchor='mm'
+            )
+
+            x = np.array(new_img.convert('RGB'))
+            y = current_hp
+
+            return x, y
+    
+    dataset = tf.data.Dataset.from_generator(
+        HpGenerator(base_img_dir, max_digit),
+        output_signature=(
+            tf.TensorSpec(shape=[None,None,3], dtype=tf.uint8),
+            tf.TensorSpec(shape=[], dtype=tf.int64)
+        )
+    )
+
+    def image_aug(image, raw_label):
+        crop_size = (tf.shape(image) 
+            - tf.cast(
+                tf.random.uniform(shape=(3,),
+                                  dtype=tf.float32,
+                                  minval=[0,0,0],
+                                  maxval=[0,400,0]),
+                dtype=tf.int32
+            )
+        )
+        image = tf.image.random_crop(image,crop_size)
+        image = tf.image.convert_image_dtype(image,tf.float32)
+        image = tf.image.resize(image, image_size)
+        # random invert color
+        if tf.random.uniform([]) < 0.5:
+            image = 1.0 - image
+        # random shuffle rgb
+        if tf.random.uniform([]) < 0.5:
+            image = tf.gather(
+                image,
+                tf.random.shuffle([0,1,2]),
+                axis=-1,
+            )
+        image = image * 255
+
+        i = raw_label
+        tf.debugging.assert_less(i,10**max_digit,
+            message='Label is larger than max digit')
+        d = tf.range(max_digit,0,-1,dtype=tf.int64)
+        label = (i-(i//(10**d))*10**d)//(10**(d-1))
+
+        return image, label
+
+    dataset = dataset.map(image_aug)
+    dataset = dataset.shuffle(SHUFFLE_BUFFER,reshuffle_each_iteration=False)
+    dataset = dataset.batch(batch_size)
+    dataset = dataset.prefetch(tf.data.AUTOTUNE)
+    dataset = dataset.repeat()
+
+    return dataset
+
+
+
 class ValFigCallback(keras.callbacks.Callback):
     def __init__(self, train_ds, val_ds, logdir):
         super().__init__()
@@ -175,7 +291,7 @@ def run_training(
     optimizer,
     epochs,
     batch_size,
-    train_dir_list,
+    train_dir,
     val_dir_list,
     img_size,
     max_digits,
@@ -224,8 +340,8 @@ def run_training(
     )
     tqdm_callback = tfa.callbacks.TQDMProgressBar()
     
-    train_ds = image_dataset(
-        train_dir_list,
+    train_ds = random_hp_dataset(
+        train_dir,
         max_digits,
         img_size,
         batch_size,
@@ -266,19 +382,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
 
-    train_dirs = [
-        'videos/1',
-        'videos/2',
-        'videos/4',
-        'videos/5',
-        'videos/6',
-        'videos/7',
-        'videos/8',
-        'videos/9',
-        'videos/10',
-    ]
+    train_dir = 'videos/base'
     val_dirs = [
-        'videos/3'
+        'videos/abrel_6_4k/1',
+        'videos/abrel_6_4k/2',
+        'videos/abrel_6_4k/3',
     ]
 
     kwargs = {}
@@ -288,7 +396,7 @@ if __name__ == '__main__':
     kwargs['optimizer'] = exp_4_6
     kwargs['epochs'] = int(args.epochs)
     kwargs['batch_size'] = 32
-    kwargs['train_dir_list'] = train_dirs
+    kwargs['train_dir'] = train_dir
     kwargs['val_dir_list'] = val_dirs
     kwargs['img_size'] = (128,704)
     kwargs['max_digits'] = 11
