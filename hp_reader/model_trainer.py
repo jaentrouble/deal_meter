@@ -364,6 +364,7 @@ def run_training(
             tqdm_callback,
             image_callback,
         ],
+        steps_per_epoch=1000,
         verbose=0,
         validation_data=val_ds,
     )
