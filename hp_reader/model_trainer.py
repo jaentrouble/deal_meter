@@ -47,6 +47,7 @@ def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int):
     """image_data
     Returns a Dataset
     Requires all image names to be integers
+    Expects width ~1440
 
     arguments
     ---------
@@ -67,16 +68,7 @@ def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int):
     def process_path(image_path):
         image_raw = tf.io.read_file(image_path)
         image = tf.io.decode_png(image_raw,channels=3)
-        crop_size = (tf.shape(image) 
-            - tf.cast(
-                tf.random.uniform(shape=(3,),
-                                  dtype=tf.float32,
-                                  minval=[0,0,0],
-                                  maxval=[40,200,0]),
-                dtype=tf.int32
-            )
-        )
-        image = tf.image.random_crop(image,crop_size)
+        image = image[:,400:1000,:]
         image = tf.image.convert_image_dtype(image,tf.float32)
         image = tf.image.resize(image, image_size)
         # random invert color
@@ -160,7 +152,7 @@ def random_hp_dataset(base_img_dir:str, max_digit:int, image_size, batch_size:in
             draw = ImageDraw.Draw(new_img)
             font = random.choice(self.fonts)
             draw.text(
-                xy=(new_img.width//2+random.randrange(-100,101),
+                xy=(new_img.width//2+random.randrange(-50,51),
                     new_img.height//2+random.randrange(0,16)),
                 text=hp_text,
                 fill=(255,255,255),
@@ -182,16 +174,7 @@ def random_hp_dataset(base_img_dir:str, max_digit:int, image_size, batch_size:in
     )
 
     def image_aug(image, raw_label):
-        crop_size = (tf.shape(image) 
-            - tf.cast(
-                tf.random.uniform(shape=(3,),
-                                  dtype=tf.float32,
-                                  minval=[0,0,0],
-                                  maxval=[0,400,0]),
-                dtype=tf.int32
-            )
-        )
-        image = tf.image.random_crop(image,crop_size)
+        image = image[:,400:1000,:]
         image = tf.image.convert_image_dtype(image,tf.float32)
         image = tf.image.resize(image, image_size)
         # random invert color
@@ -399,7 +382,7 @@ if __name__ == '__main__':
     kwargs['batch_size'] = 32
     kwargs['train_dir'] = train_dir
     kwargs['val_dir_list'] = val_dirs
-    kwargs['img_size'] = (64,704)
+    kwargs['img_size'] = (64,640)
     kwargs['max_digits'] = 11
     kwargs['load_model_path'] = args.load
     kwargs['profile'] = args.profile
