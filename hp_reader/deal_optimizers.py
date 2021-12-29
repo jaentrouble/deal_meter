@@ -16,3 +16,12 @@ exp_4_6 = optimizers.Adam(
         decay_rate=0.99,
     )
 )
+
+pol_4_5 = optimizers.Adam(
+    learning_rate=optimizers.schedules.PolynomialDecay(
+        initial_learning_rate=1e-4,
+        decay_steps=1e5,
+        end_learning_rate=1e-5,
+        power=0.5
+    )
+)

@@ -377,7 +377,7 @@ if __name__ == '__main__':
 
     kwargs['name'] = args.name
     kwargs['model_function'] = effb7_lstm
-    kwargs['optimizer'] = exp_4_6
+    kwargs['optimizer'] = pol_4_5
     kwargs['epochs'] = int(args.epochs)
     kwargs['batch_size'] = 32
     kwargs['train_dir'] = train_dir
