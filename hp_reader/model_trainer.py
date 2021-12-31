@@ -187,6 +187,9 @@ def random_hp_dataset(base_img_dir:str, max_digit:int, image_size, batch_size:in
                 tf.random.shuffle([0,1,2]),
                 axis=-1,
             )
+        # Random quality
+        image = tf.image.random_jpeg_quality(image, 25, 75)
+
         image = image * 255
 
         i = raw_label
