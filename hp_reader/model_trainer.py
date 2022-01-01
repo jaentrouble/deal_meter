@@ -188,7 +188,7 @@ def random_hp_dataset(base_img_dir:str, max_digit:int, image_size, batch_size:in
                 axis=-1,
             )
         # Random quality
-        image = tf.image.random_jpeg_quality(image, 25, 75)
+        image = tf.image.random_jpeg_quality(image, 1, 10)
 
         image = image * 255
 
@@ -252,7 +252,7 @@ class ValFigCallback(keras.callbacks.Callback):
         sample = next(samples)
         fig = plt.figure(figsize=(15,15))
         sample_x = sample[0]
-        logits = self.model(sample_x, training=True)
+        logits = self.model(sample_x, training=False)
         predict = np.argmax(logits,axis=-1)
         for i in range(4):
             ax = fig.add_subplot(4,1,i+1,title=str(predict[i]))
