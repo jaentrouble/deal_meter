@@ -15,6 +15,7 @@ def deal_model(
     optimizer,
     input_shape,
     max_digits,
+    load_model_path = False,
 ):
     """deal_model
     Gets an image of hp-bar and returns current hp
@@ -34,6 +35,10 @@ def deal_model(
     outputs = model_function(inputs, max_digits)
 
     deal_model= keras.Model(inputs=inputs,outputs=outputs)
+    if load_model_path:
+        deal_model.load_weights(load_model_path)
+        print('loaded from: '+load_model_path)
+
     deal_model.compile(
         optimizer=optimizer,
         loss=losses.SparseCategoricalCrossentropy(
@@ -295,11 +300,9 @@ def run_training(
         optimizer=optimizer,
         input_shape=input_shape,
         max_digits=max_digits,
+        load_model_path=load_model_path,
     ) # Will get a compiled model
 
-    if load_model_path:
-        mymodel.load_weights(load_model_path)
-        print('loaded from: '+load_model_path)
 
     mymodel.summary()
     log_dir = 'logs/fit/' + name
