@@ -86,6 +86,9 @@ def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int):
                 tf.random.shuffle([0,1,2]),
                 axis=-1,
             )
+        # Random quality
+        image = tf.image.random_jpeg_quality(image, 1, 50)
+
         image = image * 255
 
         raw_label = tf.strings.split(
@@ -193,7 +196,7 @@ def random_hp_dataset(base_img_dir:str, max_digit:int, image_size, batch_size:in
                 axis=-1,
             )
         # Random quality
-        image = tf.image.random_jpeg_quality(image, 1, 10)
+        image = tf.image.random_jpeg_quality(image, 1, 50)
 
         image = image * 255
 
