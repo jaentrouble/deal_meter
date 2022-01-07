@@ -5,8 +5,8 @@ from PIL import ImageTk, Image
 import cv2
 from pathlib import Path
 
-START_FRAME = 1700
-END_FRAME = 2000
+START_FRAME = 1000
+END_FRAME = 1400
 
 CUT_IDLE = 0
 CUT_WAITING1 = 1

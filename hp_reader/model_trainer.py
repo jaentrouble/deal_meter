@@ -48,7 +48,8 @@ def deal_model(
     )
     return deal_model
 
-def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int):
+def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int,
+                  augment=False):
     """image_data
     Returns a Dataset
     Requires all image names to be integers
@@ -64,6 +65,10 @@ def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int):
 
     image_size: Image will be resized to this size
         (Height, Width)
+    
+    batch_size: int
+
+    augment: Whether to add noise to the image
     """
     image_lists = [
         str(Path(d)/'*.png') for d in dir_lists
@@ -73,21 +78,25 @@ def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int):
     def process_path(image_path):
         image_raw = tf.io.read_file(image_path)
         image = tf.io.decode_png(image_raw,channels=3)
-        image = image[:,400:1000,:]
+        width= tf.cast(tf.shape(image)[1],tf.float32)
+        w_st = tf.cast(width*0.27,tf.int32)
+        w_ed = tf.cast(width*0.70,tf.int32)
+        image = image[:,w_st:w_ed,:]
         image = tf.image.convert_image_dtype(image,tf.float32)
         image = tf.image.resize(image, image_size)
-        # random invert color
-        if tf.random.uniform([]) < 0.5:
-            image = 1.0 - image
-        # random shuffle rgb
-        if tf.random.uniform([]) < 0.5:
-            image = tf.gather(
-                image,
-                tf.random.shuffle([0,1,2]),
-                axis=-1,
-            )
-        # Random quality
-        image = tf.image.random_jpeg_quality(image, 1, 50)
+        if augment:
+            # random invert color
+            if tf.random.uniform([]) < 0.5:
+                image = 1.0 - image
+            # random shuffle rgb
+            if tf.random.uniform([]) < 0.5:
+                image = tf.gather(
+                    image,
+                    tf.random.shuffle([0,1,2]),
+                    axis=-1,
+                )
+            # Random quality
+            image = tf.image.random_jpeg_quality(image, 1, 50)
 
         image = image * 255
 
@@ -182,7 +191,10 @@ def random_hp_dataset(base_img_dir:str, max_digit:int, image_size, batch_size:in
     )
 
     def image_aug(image, raw_label):
-        image = image[:,400:1000,:]
+        width= tf.cast(tf.shape(image)[1],tf.float32)
+        w_st = tf.cast(width*0.27,tf.int32)
+        w_ed = tf.cast(width*0.70,tf.int32)
+        image = image[:,w_st:w_ed,:]
         image = tf.image.convert_image_dtype(image,tf.float32)
         image = tf.image.resize(image, image_size)
         # random invert color
@@ -321,10 +333,11 @@ def run_training(
             histogram_freq=1,
         )
 
-    savedir = 'savedmodels/' + name + '/{epoch}'
+    # savedir = 'savedmodels/' + name + '/{epoch}'
+    savedir = 'savedmodels/' + name
     save_callback = keras.callbacks.ModelCheckpoint(
         savedir,
-        monitor='val_sparse_categorical_accuracy',
+        monitor='sparse_categorical_accuracy',
         save_weights_only=True,
         verbose=1,
         save_best_only=True,
