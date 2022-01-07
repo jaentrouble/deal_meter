@@ -163,7 +163,10 @@ def random_hp_dataset(base_img_dir:str, max_digit:int, image_size, batch_size:in
         def __next__(self):
             new_img = random.choice(self.base_img_list).copy()
             # Current_hp is more important - choose current_hp first
-            current_hp = random.randrange(1, 10**max_digit-1)
+            # Uniform digit
+            target_digit = random.randrange(1,max_digit+1)
+            current_hp = random.randrange(10**(target_digit-1),
+                                          10**target_digit-1)
             max_hp = random.randrange(current_hp, 10**max_digit)
             hp_text = f'{current_hp}/{max_hp}'
             draw = ImageDraw.Draw(new_img)
