@@ -359,6 +359,7 @@ def run_training(
         max_digits,
         img_size,
         batch_size,
+        augment=False,
     )
 
     image_callback = ValFigCallback(train_ds, val_ds, log_dir)
@@ -396,6 +397,7 @@ if __name__ == '__main__':
         'videos/abrel_6_4k/1',
         'videos/abrel_6_4k/2',
         'videos/abrel_6_4k/3',
+        'videos/abrel_4_1080/1',
     ]
 
     kwargs = {}
