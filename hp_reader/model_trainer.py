@@ -336,8 +336,7 @@ def run_training(
             histogram_freq=1,
         )
 
-    # savedir = 'savedmodels/' + name + '/{epoch}'
-    savedir = 'savedmodels/' + name + '/best'
+    savedir = 'savedmodels/' + name + '/{epoch}'
     save_callback = keras.callbacks.ModelCheckpoint(
         savedir,
         monitor='sparse_categorical_accuracy',
