@@ -297,7 +297,7 @@ class ValFigCallback(keras.callbacks.Callback):
 def run_training(
     name,
     model_function,
-    optimizer,
+    lr_function,
     epochs,
     batch_size,
     train_dir,
@@ -315,7 +315,7 @@ def run_training(
     input_shape = (img_size[0],img_size[1],3)
     mymodel = deal_model(
         model_function=model_function,
-        optimizer=optimizer,
+        optimizer='adam',
         input_shape=input_shape,
         max_digits=max_digits,
         load_model_path=load_model_path,
@@ -337,7 +337,7 @@ def run_training(
         )
 
     # savedir = 'savedmodels/' + name + '/{epoch}'
-    savedir = 'savedmodels/' + name
+    savedir = 'savedmodels/' + name + '/best'
     save_callback = keras.callbacks.ModelCheckpoint(
         savedir,
         monitor='sparse_categorical_accuracy',
@@ -347,6 +347,8 @@ def run_training(
         mode='max',
     )
     tqdm_callback = tfa.callbacks.TQDMProgressBar()
+
+    lr_callback = keras.callbacks.LearningRateScheduler(lr_function, verbose=1)
     
     train_ds = random_hp_dataset(
         train_dir,
@@ -372,6 +374,7 @@ def run_training(
             save_callback,
             tqdm_callback,
             image_callback,
+            lr_callback,
         ],
         steps_per_epoch=1000,
         verbose=0,
@@ -381,7 +384,8 @@ def run_training(
 if __name__ == '__main__':
     import argparse
     from deal_models import *
-    from deal_optimizers import *
+    # from deal_optimizers import *
+    from deal_lr_callbacks import *
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-n','--name',dest='name')
@@ -404,7 +408,7 @@ if __name__ == '__main__':
 
     kwargs['name'] = args.name
     kwargs['model_function'] = effb7_lstm
-    kwargs['optimizer'] = pol_4_5
+    kwargs['lr_function'] = sqrt_decay_1
     kwargs['epochs'] = int(args.epochs)
     kwargs['batch_size'] = 32
     kwargs['train_dir'] = train_dir
