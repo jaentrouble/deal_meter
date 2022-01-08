@@ -135,3 +135,5 @@ hp_reader/logs
 hp_reader/logs_backup
 hp_reader/savedmodels
 hp_reader/videos
+
+ffmpeg*
