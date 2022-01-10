@@ -27,7 +27,6 @@ if __name__ == '__main__':
         # 'profile:v' : 'high',
         # 'preset' : 'slow',
         'pix_fmt' : 'yuv420p',
-        'qp' : 0,
         'r' : 60,
         's' : f'{width}x{height}'
     }
