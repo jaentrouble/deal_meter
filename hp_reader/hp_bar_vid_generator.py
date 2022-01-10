@@ -38,7 +38,7 @@ if __name__ == '__main__':
     ]
     fonts = [
         ImageFont.truetype('NanumBarunGothic.ttf',size=s)
-            for s in range(13,16)
+            for s in range(14,18)
     ]
 
     for d, a, n in tqdm.tqdm(zip(init_digit, total_frames, vid_num)):
