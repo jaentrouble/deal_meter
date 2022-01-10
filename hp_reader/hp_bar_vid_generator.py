@@ -28,6 +28,7 @@ if __name__ == '__main__':
         'profile:v' : 'main',
         'r' : '60',
         's' : f'{width}x{height}',
+        'pix_fmt' : 'yuv420p',
     }
 
     base_img_list = [
