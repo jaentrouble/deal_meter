@@ -51,7 +51,7 @@ if __name__ == '__main__':
                             r=60,s=f'{width}x{height}')
                     .output(vid_name,**output_kwargs)
                     .overwrite_output()
-                    .run_async(pipe_stdin=True)
+                    .run_async(pipe_stdin=True,quiet=True)
             )
             print('process ready')
             start_hp = random.randrange(10**(d-1),10**d)
