@@ -25,6 +25,7 @@ if __name__ == '__main__':
         'cq:v' : '18',
         'video_bitrate' : '3K',
         'preset' : 'slow',
+        'profile:v' : 'medium',
         'r' : '60',
         's' : f'{width}x{height}',
     }
