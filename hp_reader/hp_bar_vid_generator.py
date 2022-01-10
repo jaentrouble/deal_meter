@@ -15,11 +15,23 @@ if __name__ == '__main__':
     # vid_num =    [1000,100,100,100,100]
     init_digit = [11]
     total_frames = [100]
-    vid_num =    [1]
+    vid_num =    [10]
 
     width = 540
     height = 30
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    output_kwargs = {
+        'vcodec' : 'libx264',
+        # 'rc' : 'vbr_hq',
+        # 'cq' : '18',
+        # 'video_bitrate' : '30M',
+        # 'profile:v' : 'high',
+        # 'preset' : 'slow',
+        'pix_fmt' : 'yuv420p',
+        'qp' : 0,
+        'r' : 60,
+        's' : f'{width}x{height}'
+    }
+
     base_img_list = [
         Image.open(d) for d in Path(base_img_dir).iterdir()
             if d.match('*.png')
@@ -33,11 +45,13 @@ if __name__ == '__main__':
         for i in tqdm.trange(n):
             vid_name = f'videos/vid_noise/{d}_{a}_{i}.mp4'
             log_name = vid_name + '.log'
-            video_writer = cv2.VideoWriter(
-                vid_name,
-                fourcc,
-                60,
-                (width,height),
+            process = (
+                ffmpeg
+                    .input('pipe:', format='rawvideo', pix_fmt='rgb24', 
+                            r=60,s=f'{width}x{height}')
+                    .output(vid_name,**output_kwargs)
+                    .overwrite_output()
+                    .run_async(pipe_stdin=True,quiet=True)
             )
             start_hp = random.randrange(10**(d-1),10**d)
             current_hp = start_hp
@@ -50,7 +64,7 @@ if __name__ == '__main__':
             hp_log = []
             for f in tq:
                 new_img = base_img_list[0].copy()
-                new_img.resize((width,height))
+                new_img = new_img.resize((width,height))
                 current_hp -= random.randrange(hp_step_st, hp_step_ed)
                 if current_hp <= 0:
                     tq.close()
@@ -68,10 +82,11 @@ if __name__ == '__main__':
                 )
                 
                 new_frame = np.array(new_img.convert('RGB'),dtype=np.uint8)
-                new_frame = cv2.cvtColor(new_frame, cv2.COLOR_RGB2BGR)
-                print(new_frame.shape)
-                video_writer.write(new_frame)
-            video_writer.release()
+                process.stdin.write(
+                    new_frame.tobytes()
+                )
+            process.stdin.close()
+            process.wait()
             with open(log_name,'w') as log_file:
                 json.dump(hp_log,log_file)
             
