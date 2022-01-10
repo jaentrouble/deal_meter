@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
     width = 540
     height = 30
-    fourcc = cv2.VideoWriter_fourcc(*'X264')
+    fourcc = cv2.VideoWriter_fourcc(*'MPEG')
     base_img_list = [
         Image.open(d) for d in Path(base_img_dir).iterdir()
             if d.match('*.png')
