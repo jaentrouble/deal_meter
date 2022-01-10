@@ -38,7 +38,7 @@ if __name__ == '__main__':
     ]
     fonts = [
         ImageFont.truetype('NanumBarunGothic.ttf',size=s)
-            for s in range(28,36)
+            for s in range(13,16)
     ]
 
     for d, a, n in tqdm.tqdm(zip(init_digit, total_frames, vid_num)):
@@ -53,18 +53,18 @@ if __name__ == '__main__':
                     .overwrite_output()
                     .run_async(pipe_stdin=True,quiet=True)
             )
-            print('process ready')
             start_hp = random.randrange(10**(d-1),10**d)
             current_hp = start_hp
             hp_step_st = (10**d // a)//2
             hp_step_ed = hp_step_st * 3
             tq = tqdm.trange(a,leave=False)
-            xy = (new_img.width//2+random.randrange(-50,51),
-                  new_img.height//2+random.randrange(0,16))
+            xy = (width//2+random.randrange(-10,11),
+                  height//2+random.randrange(0,4))
 
             hp_log = []
             for f in tq:
                 new_img = random.choice(base_img_list).copy()
+                new_img.resize((width,height))
                 current_hp -= random.randrange(hp_step_st, hp_step_ed)
                 hp_log.append(current_hp)
                 if current_hp <= 0:
@@ -80,7 +80,7 @@ if __name__ == '__main__':
                     font=font,
                     anchor='mm'
                 )
-                new_img.resize((width,height))
+                
                 new_frame = np.array(new_img.convert('RGB'),dtype=np.uint8)
                 process.stdin.write(
                     new_frame.tobytes()
