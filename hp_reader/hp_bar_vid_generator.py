@@ -20,6 +20,7 @@ if __name__ == '__main__':
     width = 540
     height = 30
     output_kwargs = {
+        'v' : 'fatal',
         'vcodec' : 'libx264',
         # 'rc' : 'vbr_hq',
         # 'cq' : '18',
@@ -52,6 +53,7 @@ if __name__ == '__main__':
                     .overwrite_output()
                     .run_async(pipe_stdin=True)
             )
+            print('process ready')
             start_hp = random.randrange(10**(d-1),10**d)
             current_hp = start_hp
             hp_step_st = (10**d // a)//2
