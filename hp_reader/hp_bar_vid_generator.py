@@ -72,7 +72,7 @@ if __name__ == '__main__':
                     break
                 hp_text = f'{current_hp}/{start_hp}'
                 draw = ImageDraw.Draw(new_img)
-                font = random.choice(fonts)
+                font = fonts[0]
                 draw.text(
                     xy=xy,
                     text=hp_text,
