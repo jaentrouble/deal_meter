@@ -59,10 +59,11 @@ if __name__ == '__main__':
             tq = tqdm.trange(a,leave=False)
             xy = (width//2+random.randrange(-10,11),
                   height//2+random.randrange(0,4))
+            font = random.choice(fonts)
 
             hp_log = []
             for f in tq:
-                new_img = base_img_list[0].copy()
+                new_img = random.choice(base_img_list).copy()
                 new_img = new_img.resize((width,height))
                 current_hp -= random.randrange(hp_step_st, hp_step_ed)
                 if current_hp <= 0:
@@ -71,7 +72,7 @@ if __name__ == '__main__':
                 hp_log.append(current_hp)
                 hp_text = f'{current_hp}/{start_hp}'
                 draw = ImageDraw.Draw(new_img)
-                font = fonts[0]
+                
                 draw.text(
                     xy=xy,
                     text=hp_text,
