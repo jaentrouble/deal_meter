@@ -10,12 +10,12 @@ import numpy as np
 if __name__ == '__main__':
 
     base_img_dir = 'videos/base'
-    # init_digit = [11, 10, 9, 8, 7]
-    # total_frames = [100000,10000,10000,10000,10000]
-    # vid_num =    [1000,100,100,100,100]
-    init_digit = [11]
-    total_frames = [100]
-    vid_num =    [10]
+    init_digit = [11, 10, 9, 8, 7]
+    total_frames = [100000,10000,10000,10000,10000]
+    vid_num =    [1000,100,100,100,100]
+    # init_digit = [11]
+    # total_frames = [100]
+    # vid_num =    [10]
 
     width = 540
     height = 30
@@ -42,6 +42,7 @@ if __name__ == '__main__':
     ]
 
     for d, a, n in tqdm.tqdm(zip(init_digit, total_frames, vid_num)):
+        print('digit:',d)
         for i in tqdm.trange(n):
             vid_name = f'videos/vid_noise/{d}_{a}_{i}.mp4'
             log_name = vid_name + '.log'
