@@ -81,7 +81,8 @@ def pool_func(_id):
                 new_img = new_img.resize((width,height))
                 current_hp -= random.randrange(hp_step_st, hp_step_ed)
                 if current_hp <= 0:
-                    tq.close()
+                    if _id==0:
+                        tq.close()
                     break
                 hp_log.append(current_hp)
                 hp_text = f'{current_hp}/{start_hp}'
