@@ -12,8 +12,8 @@ def pool_func(_id):
 
     base_img_dir = 'videos/base'
     init_digit = [11, 10, 9, 8, 7]
-    total_frames = [100,100,100,100,100]
-    vid_num =    [2,2,2,2,2]
+    total_frames = [10000,1000,1000,1000,1000]
+    vid_num =    [100,10,10,10,10]
     # init_digit = [11]
     # total_frames = [100]
     # vid_num =    [10]
@@ -41,10 +41,18 @@ def pool_func(_id):
         ImageFont.truetype('NanumBarunGothic.ttf',size=s)
             for s in range(14,18)
     ]
+    if _id == 0:
+        _iter = tqdm.tqdm(zip(init_digit, total_frames, vid_num))
+    else:
+        _iter = zip(init_digit, total_frames, vid_num)
 
-    for d, a, n in tqdm.tqdm(zip(init_digit, total_frames, vid_num)):
-        print('digit:',d)
-        for i in tqdm.trange(n):
+    for d, a, n in _iter:
+        if _id == 0:
+            _range_iter = tqdm.trange(n)
+            print('digit:',d)
+        else:
+            _range_iter = range(n)
+        for i in _range_iter:
             vid_name = f'videos/vid_noise/{_id}_{d}_{a}_{i}.mp4'
             log_name = vid_name + '.log'
             process = (
@@ -92,6 +100,7 @@ def pool_func(_id):
             process.wait()
             with open(log_name,'w') as log_file:
                 json.dump(hp_log,log_file)
+    print('process done: ',_id)
             
 if __name__ == '__main__':
     from multiprocessing import Pool
