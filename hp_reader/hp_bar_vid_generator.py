@@ -47,7 +47,7 @@ if __name__ == '__main__':
             process = (
                 ffmpeg
                     .input('pipe:', format='rawvideo', pix_fmt='rgb24', 
-                            s=f'{width}x{height}')
+                            r=60,s=f'{width}x{height}')
                     .output(vid_name,**output_kwargs)
                     .overwrite_output()
                     .run_async(pipe_stdin=True)
