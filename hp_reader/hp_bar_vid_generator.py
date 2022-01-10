@@ -15,7 +15,7 @@ if __name__ == '__main__':
     # vid_num =    [1000,100,100,100,100]
     init_digit = [11]
     total_frames = [100]
-    vid_num =    [10]
+    vid_num =    [1]
 
     width = 540
     height = 30
@@ -69,6 +69,7 @@ if __name__ == '__main__':
                 
                 new_frame = np.array(new_img.convert('RGB'),dtype=np.uint8)
                 new_frame = cv2.cvtColor(new_frame, cv2.COLOR_RGB2BGR)
+                print(new_frame.shape)
                 video_writer.write(new_frame)
             video_writer.release()
             with open(log_name,'w') as log_file:
