@@ -67,7 +67,10 @@ def pool_func(_id):
             current_hp = start_hp
             hp_step_st = (10**d // a)//2
             hp_step_ed = hp_step_st * 3
-            tq = tqdm.trange(a,leave=False)
+            if _id==0:
+                tq = tqdm.trange(a,leave=False)
+            else:
+                tq = range(a)
             xy = (width//2+random.randrange(-10,11),
                   height//2+random.randrange(0,4))
             font = random.choice(fonts)
