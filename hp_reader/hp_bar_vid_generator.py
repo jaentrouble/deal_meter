@@ -21,10 +21,10 @@ if __name__ == '__main__':
     height = 30
     output_kwargs = {
         'vcodec' : 'h264_nvenc',
-        'rc:v' : 'vbr_hq',
-        'cq:v' : '18',
+        'rc' : 'vbr_hq',
+        'cq' : '18',
         'video_bitrate' : '30M',
-        'profile:v' : 'high',
+        'profile' : 'high',
         'preset' : 'slow',
         's' : '540x30'
     }
