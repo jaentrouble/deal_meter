@@ -21,13 +21,14 @@ if __name__ == '__main__':
     height = 30
     output_kwargs = {
         'v' : 'fatal',
-        'vcodec' : 'h264_nvenc',
-        'rc' : 'vbr_hq',
-        'cq' : '18',
-        'video_bitrate' : '30M',
-        'profile:v' : 'high',
-        'preset' : 'slow',
+        'vcodec' : 'libx264',
+        # 'rc' : 'vbr_hq',
+        # 'cq' : '18',
+        # 'video_bitrate' : '30M',
+        # 'profile:v' : 'high',
+        # 'preset' : 'slow',
         'pix_fmt' : 'yuv420p',
+        'crf' : 25,
         'r' : 60,
         's' : f'{width}x{height}'
     }
