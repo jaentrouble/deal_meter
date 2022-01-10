@@ -21,14 +21,13 @@ if __name__ == '__main__':
     height = 30
     output_kwargs = {
         'vcodec' : 'h264_nvenc',
-        'rc:v' : 'vbr',
-        'cq:v' : '18',
-        'video_bitrate' : '3K',
-        'preset' : 'slow',
-        'profile:v' : 'main',
+        # 'rc:v' : 'vbr',
+        # 'cq:v' : '18',
+        # 'video_bitrate' : '3K',
+        # 'preset' : 'slow',
+        # 'profile:v' : 'main',
         'r' : '60',
-        's' : f'{width}x{height}',
-        'pix_fmt' : 'yuv420p',
+        # 's' : f'{width}x{height}',
     }
 
     base_img_list = [
