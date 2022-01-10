@@ -26,6 +26,7 @@ if __name__ == '__main__':
         # 'video_bitrate' : '30M',
         # 'profile:v' : 'high',
         # 'preset' : 'slow',
+        'crf' : '12',
         'pix_fmt' : 'yuv420p',
         'r' : 60,
         's' : f'{width}x{height}'
