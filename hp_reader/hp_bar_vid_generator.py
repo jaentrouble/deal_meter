@@ -20,7 +20,6 @@ if __name__ == '__main__':
     width = 540
     height = 30
     output_kwargs = {
-        'v' : 'fatal',
         'vcodec' : 'libx264',
         # 'rc' : 'vbr_hq',
         # 'cq' : '18',
@@ -28,7 +27,7 @@ if __name__ == '__main__':
         # 'profile:v' : 'high',
         # 'preset' : 'slow',
         'pix_fmt' : 'yuv420p',
-        'crf' : 25,
+        'qp' : 0,
         'r' : 60,
         's' : f'{width}x{height}'
     }
