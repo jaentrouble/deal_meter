@@ -12,8 +12,8 @@ def pool_func(_id):
 
     base_img_dir = 'videos/base'
     init_digit = [11, 10, 9, 8, 7]
-    total_frames = [100000,10000,10000,10000,10000]
-    vid_num =    [100,10,10,10,10]
+    total_frames = [100,100,100,100,100]
+    vid_num =    [2,2,2,2,2]
     # init_digit = [11]
     # total_frames = [100]
     # vid_num =    [10]
