@@ -7,12 +7,13 @@ import tqdm
 import json
 import numpy as np
 
-if __name__ == '__main__':
+
+def pool_func(_id):
 
     base_img_dir = 'videos/base'
     init_digit = [11, 10, 9, 8, 7]
     total_frames = [100000,10000,10000,10000,10000]
-    vid_num =    [1000,100,100,100,100]
+    vid_num =    [100,10,10,10,10]
     # init_digit = [11]
     # total_frames = [100]
     # vid_num =    [10]
@@ -44,7 +45,7 @@ if __name__ == '__main__':
     for d, a, n in tqdm.tqdm(zip(init_digit, total_frames, vid_num)):
         print('digit:',d)
         for i in tqdm.trange(n):
-            vid_name = f'videos/vid_noise/{d}_{a}_{i}.mp4'
+            vid_name = f'videos/vid_noise/{_id}_{d}_{a}_{i}.mp4'
             log_name = vid_name + '.log'
             process = (
                 ffmpeg
@@ -92,3 +93,7 @@ if __name__ == '__main__':
             with open(log_name,'w') as log_file:
                 json.dump(hp_log,log_file)
             
+if __name__ == '__main__':
+    from multiprocessing import Pool
+    with Pool(10) as p:
+        p.map(pool_func,range(10))
