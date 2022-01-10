@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
             hp_log = []
             for f in tq:
-                new_img = random.choice(base_img_list).copy()
+                new_img = base_img_list[0].copy()
                 new_img.resize((width,height))
                 current_hp -= random.randrange(hp_step_st, hp_step_ed)
                 hp_log.append(current_hp)
