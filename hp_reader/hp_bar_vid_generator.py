@@ -10,9 +10,13 @@ import numpy as np
 if __name__ == '__main__':
 
     base_img_dir = 'videos/base'
-    init_digit = [11, 10, 9, 8, 7]
-    total_frames = [100000,10000,10000,10000,10000]
-    vid_num =    [1000,100,100,100,100]
+    # init_digit = [11, 10, 9, 8, 7]
+    # total_frames = [100000,10000,10000,10000,10000]
+    # vid_num =    [1000,100,100,100,100]
+    init_digit = [11]
+    total_frames = [100]
+    vid_num =    [10]
+
     width = 540
     height = 30
     output_kwargs = {
@@ -47,8 +51,8 @@ if __name__ == '__main__':
             hp_step_st = (10**d // a)//2
             hp_step_ed = hp_step_st * 3
             tq = tqdm.trange(a,leave=False)
-            xy = (new_img.width//2+random.randrange(-20,21),
-                  new_img.height//2+random.randrange(0,5))
+            xy = (new_img.width//2+random.randrange(-50,51),
+                  new_img.height//2+random.randrange(0,16))
 
             hp_log = []
             for f in tq:
@@ -68,6 +72,7 @@ if __name__ == '__main__':
                     font=font,
                     anchor='mm'
                 )
+                new_img.resize((width,height))
                 new_frame = np.array(new_img.convert('RGB'),dtype=np.uint8)
                 process.stdin.write(
                     new_frame.tobytes()
