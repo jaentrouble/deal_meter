@@ -79,10 +79,10 @@ class HpGenerator():
         new_img = random.choice(self.base_img_list).copy()
         # Current_hp is more important - choose current_hp first
         # Uniform digit
-        target_digit = random.randrange(1,max_digit+1)
+        target_digit = random.randrange(1,self.max_digit+1)
         current_hp = random.randrange(10**(target_digit-1),
                                         10**target_digit-1)
-        max_hp = random.randrange(current_hp, 10**max_digit)
+        max_hp = random.randrange(current_hp, 10**self.max_digit)
         hp_text = f'{current_hp}/{max_hp}'
         draw = ImageDraw.Draw(new_img)
         font = random.choice(self.fonts)
