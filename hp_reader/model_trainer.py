@@ -7,6 +7,7 @@ import tensorflow_addons as tfa
 import matplotlib.pyplot as plt
 import io
 import numpy as np
+from hp_bar_vid_generator import vid_dataset
 
 SHUFFLE_BUFFER = 1000
 
@@ -336,7 +337,7 @@ def run_training(
             histogram_freq=1,
         )
 
-    savedir = 'savedmodels/' + name + '/{epoch}'
+    savedir = 'savedmodels/' + name + '/best'
     save_callback = keras.callbacks.ModelCheckpoint(
         savedir,
         monitor='sparse_categorical_accuracy',
@@ -349,7 +350,8 @@ def run_training(
 
     lr_callback = keras.callbacks.LearningRateScheduler(lr_function, verbose=1)
     
-    train_ds = random_hp_dataset(
+    # train_ds = random_hp_dataset(
+    train_ds = vid_dataset(
         train_dir,
         max_digits,
         img_size,
@@ -395,7 +397,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
 
-    train_dir = 'videos/base'
+    train_dir = 'videos/vid_noise'
     val_dirs = [
         'videos/abrel_6_4k/1',
         'videos/abrel_6_4k/2',
