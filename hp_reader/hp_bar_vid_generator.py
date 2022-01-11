@@ -7,6 +7,92 @@ import tqdm
 import json
 import numpy as np
 
+class VideoDSGenerator():
+    MIN_BUF_SIZE = 20000
+
+    def __init__(self, vid_dir:str) -> None:
+        self.vid_path_list = list(Path(vid_dir).glob('*.mp4'))
+        self.vid_log_list = []
+        for vp in self.vid_path_list:
+            with open(vp.with_suffix('.mp4.log'),'r') as j:
+                self.vid_log_list.append(json.load(j))
+        self.buffer_x = []
+        self.buffer_y = []
+
+    def refill_buffer(self):
+        while len(self.buffer_x)< VideoDSGenerator.MIN_BUF_SIZE:
+            tgt_idx = random.randrange(0,len(self.vid_path_list))
+            cap = cv2.VideoCapture(str(self.vid_path_list[tgt_idx]))
+            hp_log = self.vid_log_list[tgt_idx]
+            for hp in hp_log:
+                ret, frame = cap.read()
+                if ret:
+                    self.buffer_x.append(frame[:,:,::-1])
+                    self.buffer_y.append(hp)
+                else:
+                    break
+            cap.release()
+
+    def __iter__(self):
+        return self
+    
+    def __call__(self, *args):
+        return self
+
+    def __next__(self):
+        if len(self.buffer_x)<VideoDSGenerator.MIN_BUF_SIZE:
+            self.refill_buffer()
+        idx = random.randrange(0,len(self.buffer_x))
+        x = self.buffer_x.pop(idx)
+        y = self.buffer_y.pop(idx)
+
+        return x, y
+
+
+def vid_dataset(vid_dir:str, max_digit:int, image_size:tuple[int,int], 
+                batch_size:int):
+    import tensorflow as tf
+    dataset = tf.data.Dataset.from_generator(
+        VideoDSGenerator(vid_dir),
+        output_signature=(
+            tf.TensorSpec(shape=[None,None,3], dtype=tf.uint8),
+            tf.TensorSpec(shape=[],dtype=tf.int64)
+        )
+    )
+    def image_aug(image, raw_label):
+        width= tf.cast(tf.shape(image)[1],tf.float32)
+        w_st = tf.cast(width*0.27,tf.int32)
+        w_ed = tf.cast(width*0.70,tf.int32)
+        image = image[:,w_st:w_ed,:]
+        image = tf.image.convert_image_dtype(image,tf.float32)
+        image = tf.image.resize(image, image_size)
+        # random invert color
+        if tf.random.uniform([]) < 0.5:
+            image = 1.0 - image
+        # random shuffle rgb
+        if tf.random.uniform([]) < 0.5:
+            image = tf.gather(
+                image,
+                tf.random.shuffle([0,1,2]),
+                axis=-1,
+            )
+
+        image = image * 255
+
+        i = raw_label
+        tf.debugging.assert_less(i,10**max_digit,
+            message='Label is larger than max digit')
+        d = tf.range(max_digit,0,-1,dtype=tf.int64)
+        label = (i-(i//(10**d))*10**d)//(10**(d-1))
+
+        return image, label
+
+    dataset = dataset.map(image_aug)
+    dataset = dataset.batch(batch_size)
+    dataset = dataset.prefetch(tf.data.AUTOTUNE)
+    dataset = dataset.repeat()
+
+    return dataset
 
 def pool_func(_id):
 
