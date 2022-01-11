@@ -7,7 +7,9 @@ import tensorflow_addons as tfa
 import matplotlib.pyplot as plt
 import io
 import numpy as np
-from hp_bar_vid_generator import vid_dataset
+from hp_bar_vid_generator import VideoDSGenerator
+import random
+from PIL import Image, ImageFont, ImageDraw
 
 SHUFFLE_BUFFER = 1000
 
@@ -48,6 +50,69 @@ def deal_model(
         metrics=[metrics.SparseCategoricalAccuracy()]
     )
     return deal_model
+
+class HpGenerator():
+    """An iterable generator that makes fake hp bar images
+
+    Max_HP and Current_HP are both random while
+    Current_HP <= Max_HP
+    """
+    def __init__(self,base_img_dir:str, max_digit:int) -> None:
+        self.base_img_list = [
+            Image.open(d) for d in Path(base_img_dir).iterdir()
+                if d.match('*.png')
+        ] # List of PIL.Image objects, not np.array objects
+        self.fonts = [
+            ImageFont.truetype('NanumBarunGothic.ttf',size=s)
+                for s in range(28,36)
+        ]
+        assert max_digit > 0
+        self.max_digit = max_digit
+
+    def __iter__(self):
+        return self
+
+    def __call__(self, *args):
+        return self
+
+    def __next__(self):
+        new_img = random.choice(self.base_img_list).copy()
+        # Current_hp is more important - choose current_hp first
+        # Uniform digit
+        target_digit = random.randrange(1,max_digit+1)
+        current_hp = random.randrange(10**(target_digit-1),
+                                        10**target_digit-1)
+        max_hp = random.randrange(current_hp, 10**max_digit)
+        hp_text = f'{current_hp}/{max_hp}'
+        draw = ImageDraw.Draw(new_img)
+        font = random.choice(self.fonts)
+        draw.text(
+            xy=(new_img.width//2+random.randrange(-50,51),
+                new_img.height//2+random.randrange(0,16)),
+            text=hp_text,
+            fill=(255,255,255),
+            font=font,
+            anchor='mm'
+        )
+
+        x = np.array(new_img.convert('RGB'))
+        y = current_hp
+
+        return x, y
+
+
+class MergeGenerator():
+    def __init__(self, generators:list) -> None:
+        self.generators = generators
+
+    def __iter__(self):
+        return self
+
+    def __call__(self, *args):
+        return self
+
+    def __next__(self):
+        return next(random.choice(self.generators))
 
 def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int,
                   augment=False):
@@ -118,14 +183,22 @@ def image_dataset(dir_lists:list, max_digit:int, image_size, batch_size:int,
 
     return dataset
 
-def random_hp_dataset(base_img_dir:str, max_digit:int, image_size, batch_size:int):
+def random_hp_dataset(
+    generators:list,
+    generator_args:list,
+    max_digit:int,
+    image_size,
+    batch_size:int
+):
     """image_data
     Returns a Dataset
     Requires all image names to be integers
 
     arguments
     ---------
-    dir_lists: list of directories that contain base images
+    generators: list of generator Class, not instances
+
+    generator_args: arguments to create instances of generators
 
     max_digit: maximum digit of label (padded with 0)
                All labels should be less than max_digit
@@ -134,60 +207,12 @@ def random_hp_dataset(base_img_dir:str, max_digit:int, image_size, batch_size:in
     image_size: Image will be resized to this size
         (Height, Width)
     """
-    from PIL import Image, ImageFont, ImageDraw
-    import random
-
-    class HpGenerator():
-        """An iterable generator that makes fake hp bar images
-
-        Max_HP and Current_HP are both random while
-        Current_HP <= Max_HP
-        """
-        def __init__(self,base_img_dir:str, max_digit:int) -> None:
-            self.base_img_list = [
-                Image.open(d) for d in Path(base_img_dir).iterdir()
-                    if d.match('*.png')
-            ] # List of PIL.Image objects, not np.array objects
-            self.fonts = [
-                ImageFont.truetype('NanumBarunGothic.ttf',size=s)
-                    for s in range(28,36)
-            ]
-            assert max_digit > 0
-            self.max_digit = max_digit
-
-        def __iter__(self):
-            return self
-
-        def __call__(self, *args):
-            return self
-
-        def __next__(self):
-            new_img = random.choice(self.base_img_list).copy()
-            # Current_hp is more important - choose current_hp first
-            # Uniform digit
-            target_digit = random.randrange(1,max_digit+1)
-            current_hp = random.randrange(10**(target_digit-1),
-                                          10**target_digit-1)
-            max_hp = random.randrange(current_hp, 10**max_digit)
-            hp_text = f'{current_hp}/{max_hp}'
-            draw = ImageDraw.Draw(new_img)
-            font = random.choice(self.fonts)
-            draw.text(
-                xy=(new_img.width//2+random.randrange(-50,51),
-                    new_img.height//2+random.randrange(0,16)),
-                text=hp_text,
-                fill=(255,255,255),
-                font=font,
-                anchor='mm'
-            )
-
-            x = np.array(new_img.convert('RGB'))
-            y = current_hp
-
-            return x, y
+    merged_generator = MergeGenerator(
+        [g(*args) for g,args in zip(generators,generator_args)]
+    )
     
     dataset = tf.data.Dataset.from_generator(
-        HpGenerator(base_img_dir, max_digit),
+        merged_generator,
         output_signature=(
             tf.TensorSpec(shape=[None,None,3], dtype=tf.uint8),
             tf.TensorSpec(shape=[], dtype=tf.int64)
@@ -211,8 +236,8 @@ def random_hp_dataset(base_img_dir:str, max_digit:int, image_size, batch_size:in
                 tf.random.shuffle([0,1,2]),
                 axis=-1,
             )
-        # Random quality
-        image = tf.image.random_jpeg_quality(image, 1, 50)
+        # # Random quality
+        # image = tf.image.random_jpeg_quality(image, 1, 50)
 
         image = image * 255
 
@@ -225,7 +250,6 @@ def random_hp_dataset(base_img_dir:str, max_digit:int, image_size, batch_size:in
         return image, label
 
     dataset = dataset.map(image_aug)
-    dataset = dataset.shuffle(SHUFFLE_BUFFER,reshuffle_each_iteration=False)
     dataset = dataset.batch(batch_size)
     dataset = dataset.prefetch(tf.data.AUTOTUNE)
     dataset = dataset.repeat()
@@ -351,8 +375,18 @@ def run_training(
     lr_callback = keras.callbacks.LearningRateScheduler(lr_function, verbose=1)
     
     # train_ds = random_hp_dataset(
-    train_ds = vid_dataset(
-        train_dir,
+    generators = [
+        HpGenerator, 
+        VideoDSGenerator
+    ]
+    gen_args = [
+        [train_dir[0],max_digits],
+        [train_dir[1]],
+    ]
+
+    train_ds = random_hp_dataset(
+        generators,
+        gen_args,
         max_digits,
         img_size,
         batch_size,
@@ -397,7 +431,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
 
-    train_dir = 'videos/vid_noise'
+    train_dir = [
+        'videos/base',
+        'videos/vid_noise'
+    ]
     val_dirs = [
         'videos/abrel_6_4k/1',
         'videos/abrel_6_4k/2',
