@@ -6,6 +6,7 @@ import tensorflow as tf
 import tensorflow.keras as keras
 from skimage.metrics import structural_similarity as ssim
 import numpy as np
+import tqdm
 
 DIGITS = 11
 INPUT_SIZE = (640,64)
@@ -29,7 +30,7 @@ def hp_logger(
 
     f = 0 # frame count
 
-    for _ in range(500):
+    for _ in tqdm.trange(500):
         ret, frame = cap.read()
         if not ret:
             break
@@ -40,7 +41,7 @@ def hp_logger(
         fr_hpbar = cv2.resize(fr_hpbar, INPUT_SIZE)
         fr_hpbar = fr_hpbar[np.newaxis,:,:,:].astype(np.float32)
         out_vector = np.argmax(hp_model(fr_hpbar, training=False)[0],axis=-1)
-        hp_pred = np.sum(digit_mul*out_vector)
+        hp_pred = int(np.sum(digit_mul*out_vector))
         hp_log.append((f,hp_pred))
         f += 1
     
