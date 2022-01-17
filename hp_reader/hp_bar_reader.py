@@ -29,7 +29,7 @@ def hp_logger(
 
     f = 0 # frame count
 
-    while True:
+    for _ in range(500):
         ret, frame = cap.read()
         if not ret:
             break
