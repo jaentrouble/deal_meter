@@ -31,6 +31,7 @@ def hp_logger(
     f = 0 # frame count
 
     for _ in tqdm.trange(500):
+        f += 1
         ret, frame = cap.read()
         if not ret:
             break
@@ -43,7 +44,7 @@ def hp_logger(
         out_vector = np.argmax(hp_model(fr_hpbar, training=False)[0],axis=-1)
         hp_pred = int(np.sum(digit_mul*out_vector))
         hp_log.append((f,hp_pred))
-        f += 1
+        
     
     with open(vid_path+'.log', 'w') as l:
         json.dump(hp_log, l)
