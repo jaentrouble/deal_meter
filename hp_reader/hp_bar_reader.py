@@ -31,7 +31,7 @@ def hp_logger(
 
     f = 0 # frame count
 
-    for _ in tqdm.trange(500):
+    for _ in tqdm.trange(61590):
         f += 1
         ret, frame = cap.read()
         if not ret:
