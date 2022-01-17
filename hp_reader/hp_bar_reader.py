@@ -26,6 +26,7 @@ def hp_logger(
     hp_w_st = preset.hp_w_st
     hp_w_ed = preset.hp_w_ed
     hp_log = []
+    f_log = []
     digit_mul = 10**np.arange(DIGITS-1,-1,-1)
 
     f = 0 # frame count
@@ -43,11 +44,12 @@ def hp_logger(
         fr_hpbar = fr_hpbar[np.newaxis,:,:,:].astype(np.float32)
         out_vector = np.argmax(hp_model(fr_hpbar, training=False)[0],axis=-1)
         hp_pred = int(np.sum(digit_mul*out_vector))
-        hp_log.append((f,hp_pred))
+        f_log.append(f)
+        hp_log.append(hp_pred)
         
     
     with open(vid_path+'.log', 'w') as l:
-        json.dump(hp_log, l)
+        json.dump([f_log,hp_log], l)
 
 if __name__ =='__main__':
     import argparse
