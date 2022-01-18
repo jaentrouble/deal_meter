@@ -92,7 +92,9 @@ class HpGenerator():
             text=hp_text,
             fill=(255,255,255),
             font=font,
-            anchor='mm'
+            anchor='mm',
+            stroke_fill=(0,0,0),
+            stroke_width=1,
         )
 
         x = np.array(new_img.convert('RGB'))
