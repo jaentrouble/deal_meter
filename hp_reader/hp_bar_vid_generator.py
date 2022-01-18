@@ -113,7 +113,7 @@ def pool_func(_id):
         # 'video_bitrate' : '30M',
         # 'profile:v' : 'high',
         # 'preset' : 'slow',
-        'crf' : '16',
+        'crf' : '30',
         'pix_fmt' : 'yuv420p',
         'r' : 60,
         's' : f'{width}x{height}'
