@@ -97,12 +97,12 @@ def vid_dataset(vid_dir:str, max_digit:int, image_size:tuple[int,int],
 def pool_func(_id):
 
     base_img_dir = 'videos/base'
-    init_digit = [11, 10, 9, 8, 7]
-    total_frames = [10000,1000,1000,1000,1000]
-    vid_num =    [100,10,10,10,10]
-    # init_digit = [11]
-    # total_frames = [100]
-    # vid_num =    [10]
+    # init_digit = [11, 10, 9, 8, 7]
+    # total_frames = [10000,1000,1000,1000,1000]
+    # vid_num =    [100,10,10,10,10]
+    init_digit = [11]
+    total_frames = [100]
+    vid_num =    [10]
 
     width = 540
     height = 30
@@ -113,7 +113,7 @@ def pool_func(_id):
         # 'video_bitrate' : '30M',
         # 'profile:v' : 'high',
         # 'preset' : 'slow',
-        'crf' : '30',
+        'crf' : '16',
         'pix_fmt' : 'yuv420p',
         'r' : 60,
         's' : f'{width}x{height}'
@@ -139,7 +139,7 @@ def pool_func(_id):
         else:
             _range_iter = range(n)
         for i in _range_iter:
-            vid_name = f'videos/vid_noise/{_id}_{d}_{a}_{i}_2.mp4'
+            vid_name = f'videos/test/{_id}_{d}_{a}_{i}_2.mp4'
             log_name = vid_name + '.log'
             process = (
                 ffmpeg
@@ -179,7 +179,9 @@ def pool_func(_id):
                     text=hp_text,
                     fill=(255,255,255),
                     font=font,
-                    anchor='mm'
+                    anchor='mm',
+                    stroke_fill=(0,0,0),
+                    stroke_width=1,
                 )
                 
                 new_frame = np.array(new_img.convert('RGB'),dtype=np.uint8)
