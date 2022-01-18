@@ -150,7 +150,7 @@ def pool_func(_id):
         else:
             _range_iter = range(n)
         for i in _range_iter:
-            vid_name = f'videos/test/{_id}_{d}_{a}_{i}_2.mp4'
+            vid_name = f'videos/vid_noise2/{_id}_{d}_{a}_{i}.mp4'
             log_name = vid_name + '.log'
             process = (
                 ffmpeg
