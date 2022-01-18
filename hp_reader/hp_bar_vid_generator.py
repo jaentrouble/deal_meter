@@ -97,27 +97,38 @@ def vid_dataset(vid_dir:str, max_digit:int, image_size:tuple[int,int],
 def pool_func(_id):
 
     base_img_dir = 'videos/base'
-    # init_digit = [11, 10, 9, 8, 7]
-    # total_frames = [10000,1000,1000,1000,1000]
-    # vid_num =    [100,10,10,10,10]
-    init_digit = [11]
-    total_frames = [100]
-    vid_num =    [10]
+    init_digit = [11, 10, 9, 8, 7]
+    total_frames = [10000,1000,1000,1000,1000]
+    vid_num =    [300,30,30,30,30]
+    # init_digit = [11]
+    # total_frames = [100]
+    # vid_num =    [10]
 
     width = 540
     height = 30
-    output_kwargs = {
+    output_kwargs = [
+        {
         'vcodec' : 'libx264',
-        # 'rc' : 'vbr_hq',
-        # 'cq' : '18',
-        # 'video_bitrate' : '30M',
-        # 'profile:v' : 'high',
-        # 'preset' : 'slow',
+        'crf' : '24',
+        'pix_fmt' : 'yuv420p',
+        'r' : 60,
+        's' : f'{width}x{height}'
+        },
+        {
+        'vcodec' : 'libx264',
+        'crf' : '27',
+        'pix_fmt' : 'yuv420p',
+        'r' : 60,
+        's' : f'{width}x{height}'
+        },
+        {
+        'vcodec' : 'libx264',
         'crf' : '30',
         'pix_fmt' : 'yuv420p',
         'r' : 60,
         's' : f'{width}x{height}'
-    }
+        },
+    ]
 
     base_img_list = [
         Image.open(d) for d in Path(base_img_dir).iterdir()
@@ -145,7 +156,7 @@ def pool_func(_id):
                 ffmpeg
                     .input('pipe:', format='rawvideo', pix_fmt='rgb24', 
                             r=60,s=f'{width}x{height}')
-                    .output(vid_name,**output_kwargs)
+                    .output(vid_name,**random.choice(output_kwargs))
                     .overwrite_output()
                     .run_async(pipe_stdin=True,quiet=True)
             )
