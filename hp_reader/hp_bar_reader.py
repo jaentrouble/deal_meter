@@ -57,7 +57,7 @@ if __name__ =='__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-v','--video',dest='video')
-    parser.add_argument('-f','--frames',dest='frames')
+    parser.add_argument('-f','--frames',dest='frames',type=int)
     args = parser.parse_args()
 
     hp_logger(
