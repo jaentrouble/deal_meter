@@ -63,7 +63,7 @@ if __name__ =='__main__':
     hp_logger(
         args.video,
         args.frames,
-        presets.FHD100BOS,
+        presets.FHD100COM,
         'savedmodels/final'
     )
     
