@@ -435,7 +435,7 @@ if __name__ == '__main__':
 
     train_dir = [
         'videos/base',
-        'videos/vid_noise'
+        'videos/vid_noise2'
     ]
     val_dirs = [
         'videos/abrel_6_4k/1',
