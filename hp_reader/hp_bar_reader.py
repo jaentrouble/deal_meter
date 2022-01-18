@@ -13,6 +13,7 @@ INPUT_SIZE = (640,64)
 
 def hp_logger(
     vid_path,
+    frames,
     preset:presets.Preset,
     model_path,
 ):
@@ -31,7 +32,7 @@ def hp_logger(
 
     f = 0 # frame count
 
-    for _ in tqdm.trange(61590):
+    for _ in tqdm.trange(frames):
         f += 1
         ret, frame = cap.read()
         if not ret:
@@ -56,11 +57,13 @@ if __name__ =='__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-v','--video',dest='video')
+    parser.add_argument('-f','--frames',dest='frames')
     args = parser.parse_args()
 
     hp_logger(
         args.video,
-        presets.UHD110COM,
+        args.frames,
+        presets.FHD100BOS,
         'savedmodels/final'
     )
     

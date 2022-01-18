@@ -43,3 +43,12 @@ UHD110COM = Preset(**{
     'icon_size':(105,90),
     'hpbar_pos':[(1220,135),(2660,190)]
 })
+
+FHD100BOS = Preset(
+    width=1920,
+    height=1080,
+    icon_pos=[(635,60),(685,90)],
+    icon_name='assets/fhd_100.png',
+    icon_size=(50,30),
+    hpbar_pos=[(710,62),(1235,85)]
+)
