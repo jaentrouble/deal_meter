@@ -52,18 +52,14 @@ def hp_logger(
         buf_idx += 1
         f_log.append(f)
 
-    done_idx = 0
-    while done_idx < buf_idx:
-        input_tensor = input_buf[done_idx:min(buf_idx,MAX_BUF+done_idx)]
+    for i in tqdm.trange(buf_idx//MAX_BUF+(buf_idx%MAX_BUF>0)):
+        input_tensor = input_buf[i*MAX_BUF:min(buf_idx,(i+1)*MAX_BUF)]
         out_logit = hp_model.predict_on_batch(
-                    input_tensor,
-                    verbose=1
-        )
+                    input_tensor)
         out_vector = np.argmax(out_logit,axis=-1)
         hp_pred = np.sum(digit_mul*out_vector,axis=-1)
         for p in hp_pred:
             hp_log.append(int(p))
-        done_idx += MAX_BUF
         
     
     assert len(hp_log) == len(f_log)
