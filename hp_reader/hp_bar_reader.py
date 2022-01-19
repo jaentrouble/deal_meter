@@ -31,7 +31,10 @@ def hp_logger(
     digit_mul = 10**np.arange(DIGITS-1,-1,-1)
 
     f = 0 # frame count
-
+    
+    input_buf = np.empty((frames,INPUT_SIZE[1],INPUT_SIZE[0],3),
+                         dtype=np.float32)
+    buf_idx = 0
     for _ in tqdm.trange(frames):
         f += 1
         ret, frame = cap.read()
@@ -42,13 +45,18 @@ def hp_logger(
             continue
         fr_hpbar = frame[hp_h_st:hp_h_ed,hp_w_st:hp_w_ed,:]
         fr_hpbar = cv2.resize(fr_hpbar, INPUT_SIZE)
-        fr_hpbar = fr_hpbar[np.newaxis,:,:,:].astype(np.float32)
-        out_vector = np.argmax(hp_model(fr_hpbar, training=False)[0],axis=-1)
-        hp_pred = int(np.sum(digit_mul*out_vector))
+        input_buf[buf_idx] = fr_hpbar.astype(np.float32)
+        buf_idx += 1
         f_log.append(f)
-        hp_log.append(hp_pred)
-        
+
+    out_logit = hp_model.predict(input_buf[:buf_idx])
+    out_vector = np.argmax(out_logit,axis=-1)
+    hp_pred = np.sum(digit_mul*out_vector,axis=-1)
+    for p in hp_pred:
+        hp_log.append(int(p))
     
+    assert len(hp_log) == len(f_log)
+        
     with open(vid_path+'.log', 'w') as l:
         json.dump([f_log,hp_log], l)
 
