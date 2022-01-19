@@ -10,6 +10,7 @@ import tqdm
 
 DIGITS = 11
 INPUT_SIZE = (640,64)
+MAX_BUF = 36000
 
 def hp_logger(
     vid_path,
@@ -51,11 +52,18 @@ def hp_logger(
         buf_idx += 1
         f_log.append(f)
 
-    out_logit = hp_model.predict(input_buf[:buf_idx],verbose=1)
-    out_vector = np.argmax(out_logit,axis=-1)
-    hp_pred = np.sum(digit_mul*out_vector,axis=-1)
-    for p in hp_pred:
-        hp_log.append(int(p))
+    done_idx = 0
+    while done_idx < MAX_BUF:
+        out_logit = hp_model.predict(
+                    input_buf[done_idx:min(buf_idx,MAX_BUF+done_idx)],
+                    verbose=1
+        )
+        out_vector = np.argmax(out_logit,axis=-1)
+        hp_pred = np.sum(digit_mul*out_vector,axis=-1)
+        for p in hp_pred:
+            hp_log.append(int(p))
+        done_idx += MAX_BUF
+        
     
     assert len(hp_log) == len(f_log)
         
