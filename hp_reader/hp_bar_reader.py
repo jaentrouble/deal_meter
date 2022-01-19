@@ -10,7 +10,7 @@ import tqdm
 
 DIGITS = 11
 INPUT_SIZE = (640,64)
-MAX_BUF = 36000
+MAX_BUF = 128
 
 def hp_logger(
     vid_path,
@@ -55,7 +55,7 @@ def hp_logger(
     done_idx = 0
     while done_idx < buf_idx:
         input_tensor = input_buf[done_idx:min(buf_idx,MAX_BUF+done_idx)]
-        out_logit = hp_model.predict(
+        out_logit = hp_model.predict_on_batch(
                     input_tensor,
                     verbose=1
         )
