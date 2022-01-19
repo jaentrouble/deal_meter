@@ -49,7 +49,7 @@ def hp_logger(
         buf_idx += 1
         f_log.append(f)
 
-    out_logit = hp_model.predict(input_buf[:buf_idx])
+    out_logit = hp_model.predict(input_buf[:buf_idx],verbose=1)
     out_vector = np.argmax(out_logit,axis=-1)
     hp_pred = np.sum(digit_mul*out_vector,axis=-1)
     for p in hp_pred:
