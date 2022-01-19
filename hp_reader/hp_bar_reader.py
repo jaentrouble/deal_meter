@@ -53,7 +53,7 @@ def hp_logger(
         f_log.append(f)
 
     done_idx = 0
-    while done_idx < MAX_BUF:
+    while done_idx < buf_idx:
         out_logit = hp_model.predict(
                     input_buf[done_idx:min(buf_idx,MAX_BUF+done_idx)],
                     verbose=1
