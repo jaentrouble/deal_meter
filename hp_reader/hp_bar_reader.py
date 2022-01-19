@@ -45,6 +45,8 @@ def hp_logger(
             continue
         fr_hpbar = frame[hp_h_st:hp_h_ed,hp_w_st:hp_w_ed,:]
         fr_hpbar = cv2.resize(fr_hpbar, INPUT_SIZE)
+        if buf_idx == 0:
+            cv2.imwrite(vid_path+'_sample.png',fr_hpbar)
         input_buf[buf_idx] = fr_hpbar.astype(np.float32)
         buf_idx += 1
         f_log.append(f)
